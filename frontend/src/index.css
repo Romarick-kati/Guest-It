@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* =========================================================================
+   ON POINT — design tokens
+   Everything below is a CSS custom property so the whole app (player +
+   admin) can be re-themed from this one file: light/dark mode via the
+   `.dark` class on <html>, and accent color via `data-accent` on <html>.
+   ========================================================================= */
+@theme {
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f7f8;
+  --color-surface-sunken: #f2f2f4;
+  --color-border: #e6e6e9;
+  --color-border-strong: #d4d4d9;
+
+  --color-ink: #121214;
+  --color-ink-muted: #6b6b73;
+  --color-ink-faint: #a3a3ab;
+
+  --color-accent: #0f7a4d;
+  --color-accent-hover: #0c6540;
+  --color-accent-soft: #e7f5ee;
+
+  --color-live: #dc2626;
+  --color-live-soft: #fdecec;
+  --color-warning: #d97706;
+  --color-warning-soft: #fdf3e2;
+  --color-success: #0f7a4d;
+  --color-success-soft: #e7f5ee;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fdecec;
+  --color-info: #2563eb;
+  --color-info-soft: #eaf1fd;
+
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---- Dark mode overrides (toggled by adding class="dark" to <html>) ---- */
+.dark {
+  --color-bg: #0b0b0d;
+  --color-surface: #131316;
+  --color-surface-muted: #1a1a1e;
+  --color-surface-sunken: #202024;
+  --color-border: #262629;
+  --color-border-strong: #34343a;
+
+  --color-ink: #f5f5f6;
+  --color-ink-muted: #a3a3ab;
+  --color-ink-faint: #6b6b73;
+
+  --color-accent-soft: #103524;
+  --color-live-soft: #3a1414;
+  --color-warning-soft: #3a2a0d;
+  --color-success-soft: #103524;
+  --color-danger-soft: #3a1414;
+  --color-info-soft: #12213f;
+}
+
+/* ---- Accent color presets (Appearance settings) ----
+   Default accent is the emerald green defined above. Switching
+   data-accent on <html> swaps just the accent tokens. A "custom" accent
+   is handled in JS (see ThemeContext) since it can be any hex value. */
+[data-accent="blue"] {
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-soft: #eaf1fd;
+}
+.dark[data-accent="blue"] { --color-accent-soft: #12213f; }
+
+[data-accent="indigo"] {
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-accent-soft: #ecebfc;
+}
+.dark[data-accent="indigo"] { --color-accent-soft: #201d40; }
+
+[data-accent="purple"] {
+  --color-accent: #7c3aed;
+  --color-accent-hover: #6d28d9;
+  --color-accent-soft: #f1eafd;
+}
+.dark[data-accent="purple"] { --color-accent-soft: #241a3d; }
+
+[data-accent="pink"] {
+  --color-accent: #db2777;
+  --color-accent-hover: #be185d;
+  --color-accent-soft: #fce8f2;
+}
+.dark[data-accent="pink"] { --color-accent-soft: #3a1729; }
+
+[data-accent="red"] {
+  --color-accent: #dc2626;
+  --color-accent-hover: #b91c1c;
+  --color-accent-soft: #fdecec;
+}
+.dark[data-accent="red"] { --color-accent-soft: #3a1414; }
+
+[data-accent="orange"] {
+  --color-accent: #d97706;
+  --color-accent-hover: #b45f04;
+  --color-accent-soft: #fdf3e2;
+}
+.dark[data-accent="orange"] { --color-accent-soft: #3a2a0d; }
+
+[data-accent="amber"] {
+  --color-accent: #ca8a04;
+  --color-accent-hover: #a16207;
+  --color-accent-soft: #fbf3d9;
+}
+.dark[data-accent="amber"] { --color-accent-soft: #362a0a; }
+
+[data-accent="green"] {
+  --color-accent: #0f7a4d;
+  --color-accent-hover: #0c6540;
+  --color-accent-soft: #e7f5ee;
+}
+.dark[data-accent="green"] { --color-accent-soft: #103524; }
+
+[data-accent="teal"] {
+  --color-accent: #0d9488;
+  --color-accent-hover: #0b7a70;
+  --color-accent-soft: #e1f5f2;
+}
+.dark[data-accent="teal"] { --color-accent-soft: #0d3330; }
+
+[data-accent="cyan"] {
+  --color-accent: #0891b2;
+  --color-accent-hover: #077791;
+  --color-accent-soft: #e1f3f8;
+}
+.dark[data-accent="cyan"] { --color-accent-soft: #0c313b; }
+
+html, body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* subtle scrollbar for horizontally-scrolling admin tables */
+.scroll-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-strong);
+  border-radius: 999px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.animate-skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* =========================================================================
+   ON POINT logo — entrance, hover, and idle-glow animations
+
+   Design intent: the mark is a fixed brand asset, so motion should feel
+   premium and controlled — a clean settle on entrance, a soft lift on
+   hover/focus, and (for the "badge" chip only) an occasional light sweep.
+   Nothing spins or wobbles; that reads as a placeholder animation rather
+   than a brand treatment.
+   ========================================================================= */
+.onpoint-logo {
+  display: inline-block;
+  transform-origin: 50% 50%;
+  user-select: none;
+  will-change: transform, opacity, filter;
+}
+
+.onpoint-logo-animated {
+  animation: onpoint-logo-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+.onpoint-logo-animated:hover,
+.onpoint-logo-animated:focus-visible {
+  transform: translateY(-2px) scale(1.045);
+  filter: drop-shadow(0 6px 16px rgba(37, 99, 235, 0.35));
+}
+.onpoint-logo-animated:active {
+  transform: translateY(0) scale(1.01);
+  transition-duration: 0.1s;
+}
+
+/* Gentle settle: rises and sharpens into place, no rotation. */
+@keyframes onpoint-logo-in {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.92); filter: blur(2px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* Bigger, looping glow used behind the logo on the splash screen */
+.onpoint-logo-glow {
+  animation: onpoint-glow-pulse 2.4s ease-in-out infinite;
+}
+@keyframes onpoint-glow-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50%      { opacity: 0.7; transform: scale(1.08); }
+}
+
+/* Nav/sidebar "badge" chip — fixed dark background, so it can carry a
+   subtle periodic light sweep without touching the artwork itself. */
+.onpoint-logo-badge {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+.onpoint-logo-badge:hover,
+.onpoint-logo-badge:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
+}
+.onpoint-logo-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.22) 48%,
+    rgba(255, 255, 255, 0.32) 52%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  animation: onpoint-badge-shine 5.5s ease-in-out infinite;
+  animation-delay: 1.2s;
+  pointer-events: none;
+}
+@keyframes onpoint-badge-shine {
+  0%, 12%   { transform: translateX(-130%); }
+  28%, 100% { transform: translateX(130%); }
+}
+
+.onpoint-splash-fade {
+  animation: onpoint-splash-fade 0.5s ease forwards;
+}
+@keyframes onpoint-splash-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; visibility: hidden; }
+}
+
+/* Brief logo hand-off shown once when a user picks an entry point on the
+   temporary Landing screen, before routing them into the app. */
+.onpoint-splash-fade-in {
+  animation: onpoint-splash-fade-in 0.25s ease both;
+}
+@keyframes onpoint-splash-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Simple page-content transition on route change */
+.page-transition {
+  animation: page-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* =========================================================================
+   Shared micro-interaction utilities — used across cards, lists, modals,
+   and dropdowns so motion feels consistent app-wide rather than bolted on
+   per-component.
+   ========================================================================= */
+
+/* Generic content entrance, e.g. panels, empty states, toasts */
+.animate-fade-in-up {
+  animation: page-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-in {
+  animation: onpoint-fade 0.3s ease both;
+}
+@keyframes onpoint-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-scale-in {
+  animation: onpoint-scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes onpoint-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Staggered grid/list entrance: apply `.stagger-item` and set the CSS
+   variable `--i` (index) inline, e.g. style={{ '--i': i }} */
+.stagger-item {
+  animation: page-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+/* Hoverable surfaces (cards, list rows) */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -12px rgba(18, 18, 20, 0.18);
+}
+.dark .hover-lift:hover {
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.55);
+}
+
+/* Modal entrance */
+.modal-backdrop-in {
+  animation: onpoint-fade 0.2s ease both;
+}
+.modal-panel-in {
+  animation: onpoint-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes onpoint-modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Dropdown / popover entrance */
+.dropdown-panel-in {
+  animation: onpoint-dropdown-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top right;
+}
+@keyframes onpoint-dropdown-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onpoint-logo-animated,
+  .onpoint-logo-glow,
+  .onpoint-logo-badge::after,
+  .onpoint-splash-fade,
+  .onpoint-splash-fade-in,
+  .page-transition,
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-scale-in,
+  .stagger-item,
+  .hover-lift,
+  .modal-backdrop-in,
+  .modal-panel-in,
+  .dropdown-panel-in {
+    animation: none !important;
+    transition: none !important;
+  }
+  .onpoint-logo-animated:hover,
+  .onpoint-logo-badge:hover,
+  .hover-lift:hover {
+    transform: none;
+    filter: none;
+    box-shadow: none;
+  }
+}
