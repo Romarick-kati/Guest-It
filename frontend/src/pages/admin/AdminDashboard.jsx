@@ -83,7 +83,7 @@ export default function AdminDashboard() {
       <Card>
         <CardHeader
           title="Active games"
-          subtitle="Games currently live on ON POINT"
+          subtitle="Games currently live on ON Point"
           action={
             <Link to="/admin/games" className="text-sm font-medium text-[var(--color-accent)] hover:underline">
               View all

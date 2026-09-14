@@ -42,11 +42,11 @@ function SaveButton({ onSave }) {
 function GeneralSettings({ onSave }) {
   return (
     <Card>
-      <CardHeader title="General" subtitle="Basic information about the ON POINT platform" />
+      <CardHeader title="General" subtitle="Basic information about the ON Point platform" />
       <div className="grid sm:grid-cols-2 gap-4 mt-4">
-        <Input label="Platform name" defaultValue="ON POINT" />
+        <Input label="Platform name" defaultValue="ON Point" />
         <Input label="Contact email" defaultValue="support@onpoint.app" />
-        <Input label="Platform description" defaultValue="The home of Guess It and future ON POINT games." containerClassName="sm:col-span-2" />
+        <Input label="Platform description" defaultValue="The home of Guess it and future ON Point games." containerClassName="sm:col-span-2" />
         <Input label="Support information" defaultValue="+237 6XX XXX XXX" />
         <Select label="Timezone" defaultValue="WAT" options={[{ value: "WAT", label: "West Africa Time (WAT)" }, { value: "UTC", label: "UTC" }]} />
         <Select label="Currency" defaultValue="FCFA" options={[{ value: "FCFA", label: "FCFA" }, { value: "USD", label: "USD" }, { value: "EUR", label: "EUR" }]} />
@@ -364,7 +364,7 @@ export default function AdminSettings() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="font-display text-lg font-semibold text-[var(--color-ink)]">Settings</h2>
-        <p className="text-sm text-[var(--color-ink-muted)]">Platform-wide configuration for ON POINT</p>
+        <p className="text-sm text-[var(--color-ink-muted)]">Platform-wide configuration for ON Point</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">

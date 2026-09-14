@@ -59,7 +59,7 @@ export default function AdminGames() {
         <div>
           <h2 className="font-display text-lg font-semibold text-[var(--color-ink)]">Games</h2>
           <p className="text-sm text-[var(--color-ink-muted)]">
-            Manage every game running on ON POINT — Guess It and future game types
+            Manage every game running on ON Point — Guess it and future game types
           </p>
         </div>
         <Link to="/admin/games/create">

@@ -51,7 +51,7 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
         <div className="grid sm:grid-cols-2 gap-4 mt-4">
           <Input
             label="Game name"
-            placeholder="Guess It"
+            placeholder="Guess it"
             value={values.title}
             onChange={update("title")}
             required
@@ -61,7 +61,7 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
             options={GAME_TYPES}
             value={values.gameType}
             onChange={update("gameType")}
-            hint="ON POINT supports multiple game types — this just runs as a Guessing Game"
+            hint="ON Point supports multiple game types — this just runs as a guessing game"
           />
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1.5">

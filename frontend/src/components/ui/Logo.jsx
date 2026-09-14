@@ -2,7 +2,7 @@ import markSrc from "../../assets/onpoint-mark.png";
 import fullSrc from "../../assets/onpoint-full.png";
 
 /**
- * The ON POINT brand mark. This is a FIXED brand asset — it must look
+ * The ON Point brand mark. This is a FIXED brand asset — it must look
  * identical no matter what theme (light/dark) or accent color is active.
  * Never recolor it with theme variables.
  *
@@ -25,7 +25,7 @@ export default function Logo({ variant = "mark", size = 32, animated = true, cla
       >
         <img
           src={fullSrc}
-          alt="ON POINT"
+          alt="ON Point"
           draggable={false}
           style={{ height: size, width: "auto" }}
           className="onpoint-logo"
@@ -38,7 +38,7 @@ export default function Logo({ variant = "mark", size = 32, animated = true, cla
   return (
     <img
       src={src}
-      alt="ON POINT"
+      alt="ON Point"
       draggable={false}
       style={{ height: size, width: "auto" }}
       className={`onpoint-logo ${animated ? "onpoint-logo-animated" : ""} ${className}`}

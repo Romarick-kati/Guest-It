@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -23,6 +23,9 @@ import GamePlay from "./pages/player/GamePlay";
 import Submission from "./pages/player/Submission";
 import GameWaiting from "./pages/player/GameWaiting";
 import GameResult from "./pages/player/GameResult";
+import Profile from "./components/profile/Profile";
+import SignIn from "./components/auth/SignIn";
+import SignUp from "./components/auth/SignUp";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -41,6 +44,27 @@ import AdminUserDetails from "./pages/admin/AdminUserDetails";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminSettings from "./pages/admin/AdminSettings";
+
+function AuthPage({ initialMode = "signin" }) {
+  const [mode, setMode] = useState(initialMode);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const returnTo = location.state?.returnTo || "/games/g1";
+
+  const handleAuthenticated = () => {
+    navigate(returnTo, { replace: true });
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  return mode === "signup" ? (
+    <SignUp onBack={handleBack} onSignIn={() => setMode("signin")} onAuthenticated={handleAuthenticated} />
+  ) : (
+    <SignIn onBack={handleBack} onSignUp={() => setMode("signup")} onAuthenticated={handleAuthenticated} />
+  );
+}
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -74,9 +98,13 @@ export default function App() {
               <Route path="/games/:id/submitted" element={<Submission />} />
               <Route path="/games/:id/closed" element={<GameWaiting />} />
               <Route path="/games/:id/result" element={<GameResult />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
 
-            {/* Admin experience - ON POINT platform administration */}
+            <Route path="/signin" element={<AuthPage initialMode="signin" />} />
+            <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+
+            {/* Admin experience - ON Point platform administration */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="games" element={<AdminGames />} />

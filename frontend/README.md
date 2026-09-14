@@ -1,13 +1,13 @@
-# ON POINT — Frontend (Developer 1 scope)
+# ON Point — Frontend (Developer 1 scope)
 
-Admin Dashboard + Core Game/Player Interface for **ON POINT**, a multi-game
-platform. **Guess It** is the first game running on it — the platform is
+Admin Dashboard + Core Game/Player Interface for **ON Point**, a multi-game
+platform. **Guess it** is the first game running on it — the platform is
 built to support more game types later (Prediction, Quiz, Challenge, ...).
 
 Built with React, Vite, React Router and Tailwind CSS v4.
 
 This covers **only** Developer 1's scope: the player game flow (browsing,
-joining, paying, playing, results) and the full ON POINT admin dashboard.
+joining, paying, playing, results) and the full ON Point admin dashboard.
 Sign up / sign in, player profile, game history, achievements, leaderboard,
 and all backend/business logic belong to the other developers.
 
@@ -95,7 +95,7 @@ reused everywhere it's needed.
 
 ## Branding
 
-The real ON POINT logo lives in `src/assets/` (`onpoint-mark.png` for the
+The real ON Point logo lives in `src/assets/` (`onpoint-mark.png` for the
 compact icon, `onpoint-full.png` for the full icon+wordmark+tagline lockup)
 and is served through the reusable `<Logo />` component
 (`src/components/ui/Logo.jsx`).
@@ -127,7 +127,7 @@ light/dark from the sun/moon icon in the admin header.
 
 ## Extensible game types
 
-Games aren't hardcoded to Guess It. `lib/mockData.js` exports `GAME_TYPES`
+Games aren't hardcoded to Guess it. `lib/mockData.js` exports `GAME_TYPES`
 (Guessing Game, Prediction Game, Quiz, Challenge) and every game record has
 a `gameType` field. `GameForm` (used by both Create and Edit) includes a
 Game Type selector, and `GameTable` shows the type as its own column. Adding

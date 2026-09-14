@@ -57,7 +57,7 @@ export default function AdminParticipants() {
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="font-display text-lg font-semibold text-[var(--color-ink)]">Participants</h2>
-        <p className="text-sm text-[var(--color-ink-muted)]">Platform-wide participation across every ON POINT game</p>
+        <p className="text-sm text-[var(--color-ink-muted)]">Platform-wide participation across every ON Point game</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">

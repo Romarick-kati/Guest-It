@@ -120,6 +120,17 @@ export const icons = {
       />
     </svg>
   ),
+  check: (props) => (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+      <path d="M4.5 10.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  crown: (props) => (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+      <path d="M3 6.2l3.7 3.1L10 4l3.3 5.3L17 6.2l-1.3 8.3H4.3L3 6.2z" strokeLinejoin="round" />
+      <path d="M4.5 16h11" strokeLinecap="round" />
+    </svg>
+  ),
   chevronRight: (props) => (
     <svg viewBox="0 0 20 20" fill="currentColor" {...props}>
       <path

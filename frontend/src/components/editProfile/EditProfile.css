@@ -1,0 +1,366 @@
+.edit-profile-page {
+  min-height: 100vh;
+  background: #f7f9f7;
+  padding: 30px 24px 55px;
+  font-family: Arial, sans-serif;
+  color: #123524;
+}
+
+.edit-profile-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.edit-profile-header {
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-bottom: 18px;
+  color: #123524;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  color: #b88616;
+}
+
+.edit-page-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #b88616;
+}
+
+.edit-profile-header h1 {
+  margin: 0;
+  font-size: 30px;
+  color: #123524;
+}
+
+.edit-profile-header p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #68756e;
+}
+
+/* PROFILE PHOTO CARD */
+.edit-photo-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 17px;
+  text-align: center;
+  box-shadow: 0 6px 22px rgba(18, 53, 36, 0.06);
+}
+
+.edit-section-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #b88616;
+}
+
+/* PROFILE PHOTO */
+.edit-photo-wrapper {
+  position: relative;
+  width: 155px;
+  height: 155px;
+  margin: 14px auto 9px;
+}
+
+.edit-profile-photo {
+  width: 155px;
+  height: 155px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3px solid #f5b942;
+  object-fit: cover;
+  box-shadow: 0 5px 18px rgba(18, 53, 36, 0.12);
+}
+
+.edit-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #123524;
+  color: #ffffff;
+  font-size: 50px;
+  font-weight: 700;
+}
+
+/* PENCIL BUTTON */
+.edit-photo-button {
+  position: absolute;
+
+  /* ORIGINAL POSITION - KEPT */
+  top: 18px;
+  right: -4px;
+
+  width: 29px;
+  height: 29px;
+
+  box-sizing: border-box;
+  padding: 0;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  border: 2px solid #f5b942;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 9px rgba(18, 53, 36, 0.18);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  z-index: 2;
+}
+
+.edit-photo-button svg {
+  width: 13px;
+  height: 13px;
+  fill: #123524;
+}
+
+.edit-photo-button:hover {
+  background: #f5b942;
+  transform: scale(1.04);
+}
+
+/* PHOTO OPTIONS */
+.photo-options {
+  position: absolute;
+
+  top: 52px;
+  right: -70px;
+
+  width: 135px;
+
+  padding: 6px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #dfe6e1;
+
+  border-radius: 12px;
+
+  box-shadow: 0 8px 25px rgba(18, 53, 36, 0.15);
+
+  z-index: 20;
+
+  text-align: left;
+}
+
+.photo-option {
+  display: block;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #123524;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.photo-option:hover {
+  background: #f7f9f7;
+  color: #b88616;
+}
+
+.photo-help {
+  margin: 0;
+  font-size: 11px;
+  color: #8a948e;
+}
+
+/* FORM */
+.edit-form-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 23px;
+  box-shadow: 0 6px 22px rgba(18, 53, 36, 0.06);
+}
+
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #123524;
+}
+
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  border: 1px solid #dfe6e1;
+  border-radius: 10px;
+  background: #f7f9f7;
+  color: #123524;
+  font-size: 13px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #f5b942;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.12);
+}
+
+.form-group input[readonly] {
+  color: #68756e;
+  cursor: not-allowed;
+}
+
+/* ACTIONS */
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 10px 22px;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cancel-btn {
+  background: #ffffff;
+  border: 1px solid #dfe6e1;
+  color: #123524;
+}
+
+.cancel-btn:hover {
+  background: #f7f9f7;
+}
+
+.save-btn {
+  border: none;
+  background: #123524;
+  color: #ffffff;
+}
+
+.save-btn:hover {
+  background: #0b2418;
+  transform: translateY(-1px);
+}
+
+/* MOBILE */
+@media (max-width: 650px) {
+
+  .edit-profile-page {
+    padding: 23px 15px 45px;
+  }
+
+  .edit-profile-header h1 {
+    font-size: 26px;
+  }
+
+  .edit-photo-card {
+    padding: 23px 18px;
+  }
+
+  .edit-form-card {
+    padding: 20px 17px;
+  }
+
+  .edit-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .edit-photo-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .photo-options {
+    right: -55px;
+    width: 125px;
+  }
+
+  .edit-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+
+  .edit-photo-wrapper {
+    width: 145px;
+    height: 145px;
+  }
+
+  .edit-profile-photo {
+    width: 145px;
+    height: 145px;
+  }
+
+  .edit-photo-button {
+    right: -3px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .photo-options {
+    right: -48px;
+    width: 120px;
+  }
+}

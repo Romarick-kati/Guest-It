@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // MOCK DATA
 // This file simulates the shape of data that the backend/API will
-// eventually provide for ON POINT (the platform) and its games — Guess It
+// eventually provide for ON Point (the platform) and its games — Guess it
 // is just the first game type running on it. Every page reads from here
 // through the small "service" functions in lib/api.js so that swapping in
 // real API calls later only means editing that one file, not every page.
@@ -18,7 +18,7 @@ export const GAME_TYPES = [
 export const games = [
   {
     id: "g1",
-    title: "Guess It",
+    title: "Guess it",
     gameType: "GUESSING",
     slug: "guess-it",
     image: "candy-jar",
@@ -422,17 +422,17 @@ export const users = [
 ];
 
 export const transactions = [
-  { id: "t1", player: "Jordan K.", game: "Guess It", amount: 100, currency: "FCFA", type: "GAME_ENTRY", status: "SUCCESS", date: "Sep 9, 2026 10:02" },
+  { id: "t1", player: "Jordan K.", game: "Guess it", amount: 100, currency: "FCFA", type: "GAME_ENTRY", status: "SUCCESS", date: "Sep 9, 2026 10:02" },
   { id: "t2", player: "Amara T.", game: "Popcorn Bucket", amount: 60000, currency: "FCFA", type: "PRIZE", status: "SUCCESS", date: "Sep 6, 2026 14:20" },
-  { id: "t3", player: "Chidi A.", game: "Guess It", amount: 100, currency: "FCFA", type: "GAME_ENTRY", status: "PENDING", date: "Sep 9, 2026 10:15" },
+  { id: "t3", player: "Chidi A.", game: "Guess it", amount: 100, currency: "FCFA", type: "GAME_ENTRY", status: "PENDING", date: "Sep 9, 2026 10:15" },
   { id: "t4", player: "Liam O.", game: "Marble Challenge", amount: 0, currency: "FCFA", type: "REFUND", status: "CANCELLED", date: "Aug 30, 2026 08:40" },
   { id: "t5", player: "Nadia F.", game: "Button Jar", amount: 50, currency: "FCFA", type: "GAME_ENTRY", status: "FAILED", date: "Sep 7, 2026 09:41" },
   { id: "t6", player: "Bello S.", game: "Coin Countdown", amount: 90000, currency: "FCFA", type: "PRIZE", status: "SUCCESS", date: "Sep 2, 2026 16:05" },
 ];
 
 export const notifications = [
-  { id: "n1", category: "GAME", text: "Game \"Guess It\" went live.", time: "5 min ago", read: false },
-  { id: "n2", category: "PAYMENT", text: "Payment confirmation received for Guess It entry.", time: "20 min ago", read: false },
+  { id: "n1", category: "GAME", text: "Game \"Guess it\" went live.", time: "5 min ago", read: false },
+  { id: "n2", category: "PAYMENT", text: "Payment confirmation received for Guess it entry.", time: "20 min ago", read: false },
   { id: "n3", category: "SYSTEM", text: "New winner determined for Popcorn Bucket.", time: "2 hours ago", read: true },
   { id: "n4", category: "USER", text: "128 new players joined this week.", time: "1 day ago", read: true },
   { id: "n5", category: "GAME", text: "Game \"Marble Challenge\" ended successfully.", time: "2 days ago", read: true },
@@ -448,12 +448,12 @@ export const dashboardStats = {
 };
 
 export const recentActivity = [
-  { id: "a1", text: "Game \"Guess It\" went live", time: "5 min ago" },
-  { id: "a2", text: "124th player joined Guess It", time: "40 min ago" },
+  { id: "a1", text: "Game \"Guess it\" went live", time: "5 min ago" },
+  { id: "a2", text: "124th player joined Guess it", time: "40 min ago" },
   { id: "a3", text: "Amara T. won \"Popcorn Bucket\"", time: "2 hours ago" },
   { id: "a4", text: "Payment confirmed for Button Jar entry", time: "3 hours ago" },
   { id: "a5", text: "New game \"Sweet Jellybeans\" scheduled", time: "6 hours ago" },
-  { id: "a6", text: "Admin updated game \"Guess It\"", time: "8 hours ago" },
+  { id: "a6", text: "Admin updated game \"Guess it\"", time: "8 hours ago" },
   { id: "a7", text: "128 new players joined this week", time: "1 day ago" },
 ];
 

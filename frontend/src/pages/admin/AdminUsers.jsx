@@ -93,7 +93,7 @@ export default function AdminUsers() {
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="font-display text-lg font-semibold text-[var(--color-ink)]">Users</h2>
-        <p className="text-sm text-[var(--color-ink-muted)]">All registered players on ON POINT</p>
+        <p className="text-sm text-[var(--color-ink-muted)]">All registered players on ON Point</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
