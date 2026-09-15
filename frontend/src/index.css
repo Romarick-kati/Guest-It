@@ -880,20 +880,29 @@ html, body {
 
 .live-join-toast {
   position: absolute;
-  z-index: 8;
+  z-index: 6;
   left: 50%;
-  bottom: 112px;
+  top: 50%;
   width: max-content;
   max-width: calc(100% - 32px);
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   border-radius: 999px;
   background: rgba(247, 216, 92, 0.96);
   color: #111820;
   padding: 10px 14px;
   font-size: 12px;
   font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
-  animation: guess-added-toast 2.6s ease both;
+  animation: live-join-toast-pop 2.6s ease both;
+}
+
+@keyframes live-join-toast-pop {
+  0% { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.96); }
+  14%, 78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 8px)) scale(0.98); }
 }
 
 @media (max-width: 767px) {

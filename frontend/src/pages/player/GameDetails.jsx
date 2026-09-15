@@ -150,6 +150,8 @@ export default function GameDetails() {
               <p className="text-sm font-black">Count the balls inside the bottle</p>
             </div>
           </div>
+
+          {joinEvent && <div className="live-join-toast">+1 | {joinEvent.name} added their guess</div>}
         </section>
 
         <section className="live-meta-strip">
@@ -179,8 +181,6 @@ export default function GameDetails() {
           pool={winnerPool}
           isLive={game.status === GAME_STATUS.LIVE}
         />
-
-        {joinEvent && <div className="live-join-toast">+1 | {joinEvent.name} added their guess</div>}
 
         <footer className="live-action-bar">
           <div className="min-w-0 rounded-full bg-white/8 px-4 py-3 text-xs font-semibold text-white/72">
