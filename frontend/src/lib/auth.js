@@ -17,6 +17,43 @@ export function isSignedIn() {
   return Boolean(getSession()?.token);
 }
 
+export function signOut() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function httpError(message, status) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
+export async function fetchProfile() {
+  const session = getSession();
+  if (!session?.token) throw httpError("Sign in required.", 401);
+
+  const response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+    headers: { Authorization: `Bearer ${session.token}` }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw httpError(data.message || "Could not load profile.", response.status);
+  return data;
+}
+
+export async function updateProfile(payload) {
+  const session = getSession();
+  if (!session?.token) throw httpError("Sign in required.", 401);
+
+  const response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.token}` },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw httpError(data.message || "Could not update profile.", response.status);
+  saveSession({ ...session, user: data });
+  return data;
+}
+
 async function authRequest(path, payload) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import logo from "../../assets/on-point-logo.png";
 import { checkUsername, signUp } from "../../lib/auth";
+import { icons } from "../ui/icons";
 import "./SignUp.css";
 
+const ChevronLeftIcon = icons.chevronLeft;
+
 function SignUp({ onBack, onSignIn, onAuthenticated }) {
-  const [passwordFocused, setPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState("idle");
@@ -76,7 +78,7 @@ function SignUp({ onBack, onSignIn, onAuthenticated }) {
         {/* LEFT SIDE */}
         <div className="auth-visual">
           <button type="button" className="auth-back-btn" onClick={onBack} aria-label="Go back">
-            <span aria-hidden="true">&lt;</span>
+            <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
           </button>
 
           <img
@@ -166,7 +168,6 @@ function SignUp({ onBack, onSignIn, onAuthenticated }) {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    onFocus={() => setPasswordFocused(true)}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     required
@@ -183,23 +184,20 @@ function SignUp({ onBack, onSignIn, onAuthenticated }) {
               </div>
 
 
-              {/* CONFIRM PASSWORD
-                  ONLY APPEARS AFTER PASSWORD IS FOCUSED */}
-              {passwordFocused && (
-                <div className="form-field confirm-password-field">
-                  <label>Confirm Password</label>
+              {/* CONFIRM PASSWORD */}
+              <div className="form-field">
+                <label>Confirm Password</label>
 
-                  <div className="password-input">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      required
-                    />
-                  </div>
+                <div className="password-input">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    required
+                  />
                 </div>
-              )}
+              </div>
 
 
               {error && <p className="auth-error">{error}</p>}

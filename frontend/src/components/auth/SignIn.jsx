@@ -1,7 +1,10 @@
 import { useState } from "react";
 import logo from "../../assets/on-point-logo.png";
 import { signIn } from "../../lib/auth";
+import { icons } from "../ui/icons";
 import "./SignIn.css";
+
+const ChevronLeftIcon = icons.chevronLeft;
 
 function SignIn({ onBack, onSignUp, onAuthenticated }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +35,7 @@ function SignIn({ onBack, onSignUp, onAuthenticated }) {
         {/* LEFT SIDE */}
         <div className="auth-visual">
           <button type="button" className="auth-back-btn" onClick={onBack} aria-label="Go back">
-            <span aria-hidden="true">&lt;</span>
+            <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
           </button>
 
           <img

@@ -16,8 +16,9 @@ export default function PaymentCheckout() {
   const navigate = useNavigate();
   const [status, setStatus] = useState("loading");
   const [game, setGame] = useState(null);
-  const [phone, setPhone] = useState("");
-  const [agreedToDonation, setAgreedToDonation] = useState(false);
+  const [countryCode, setCountryCode] = useState("+237");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   const username = location.state?.username || getSession()?.user?.username || "";
 
@@ -37,9 +38,9 @@ export default function PaymentCheckout() {
   }, [id]);
 
   const totals = useMemo(() => {
-    const donation = game?.entryFee || 100;
-    const charge = Math.round(donation * 0.04);
-    return { donation, charge, total: donation + charge };
+    const fee = game?.entryFee || 100;
+    const charge = Math.round(fee * 0.04);
+    return { fee, charge, total: fee + charge };
   }, [game]);
 
   if (status === "loading") return <LoadingState fullPage />;
@@ -50,7 +51,7 @@ export default function PaymentCheckout() {
     navigate(`/games/${id}/payment/processing`, {
       state: {
         method: "mobile_money",
-        phone,
+        phone: `${countryCode}${phoneNumber}`,
         username,
         amount: totals.total
       }
@@ -58,81 +59,80 @@ export default function PaymentCheckout() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#20384e] px-3 py-3 text-white sm:px-6 lg:py-8">
-      <div className="mx-auto grid max-w-5xl overflow-hidden rounded-[1.5rem] bg-[#082a48] shadow-[0_24px_55px_rgba(2,10,30,0.45)] sm:rounded-[2rem] lg:min-h-[620px] lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="relative order-2 overflow-hidden bg-[#062f52] p-5 sm:p-7 lg:order-1">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(120,190,224,0.45),transparent_34%),radial-gradient(circle_at_70%_75%,rgba(230,227,75,0.22),transparent_36%)]" />
-          <div className="relative z-10 mt-2 lg:mt-16">
-            <p className="text-sm font-bold text-white/70">MoMo Donation</p>
-            <h1 className="mt-3 font-display text-2xl font-black leading-tight sm:text-4xl">Confirm your entry</h1>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-white/72">
-              You are donating {formatCurrency(totals.donation, game.currency)} to enter {game.title}. A 4% processing charge is added by the payment provider, so your total is {formatCurrency(totals.total, game.currency)}.
-            </p>
-          </div>
+    <div className="max-w-md mx-auto px-4 sm:px-6 py-8">
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-accent)] mb-5"
+      >
+        <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
+        Back
+      </button>
 
-          <div className="relative z-10 mt-6 space-y-3 rounded-2xl bg-white/10 p-4 backdrop-blur lg:mt-12 lg:rounded-3xl">
-            <AmountRow label="Donation" value={formatCurrency(totals.donation, game.currency)} />
-            <AmountRow label="Processing charge" value={formatCurrency(totals.charge, game.currency)} />
-            <div className="h-px bg-white/15" />
-            <AmountRow label="Total" value={formatCurrency(totals.total, game.currency)} strong />
-          </div>
-        </section>
+      <span className="block text-[11px] font-bold tracking-[0.2em] text-[var(--color-accent)] uppercase mb-1">
+        Answer fee
+      </span>
+      <h1 className="font-display text-2xl font-bold text-[var(--color-ink)]">{game.title}</h1>
+      <p className="text-sm text-[var(--color-ink-muted)] mt-1">
+        Pay the answer fee to submit your guess and enter the winner pool.
+      </p>
 
-        <section className="relative order-1 flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:order-2 lg:p-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_5%,rgba(188,238,241,0.6),rgba(34,93,107,0.55)_33%,rgba(4,24,45,1)_100%)]" />
-          <form onSubmit={handlePay} className="relative z-10 w-full max-w-md rounded-2xl bg-[#041d33]/88 p-5 shadow-2xl backdrop-blur sm:rounded-3xl sm:p-7">
-            <div className="mb-5 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/18"
-                aria-label="Go back"
-                title="Go back"
-              >
-                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <p className="text-sm font-bold text-[#a8d1df]">Step 2 of 2</p>
-            </div>
-            <h2 className="mt-2 font-display text-2xl font-black leading-tight">Enter MoMo number</h2>
-            <p className="mt-2 text-sm text-white/60">
-              {username ? `Playing as @${username}` : "Your username will be attached to this entry."}
-            </p>
-
-            <label className="mt-5 block text-sm font-bold text-white/80 sm:mt-6" htmlFor="momo">
-              Mobile Money number
-            </label>
+      <form onSubmit={handlePay} className="mt-6 space-y-4">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5">
+          <label className="block text-sm font-semibold text-[var(--color-ink)]" htmlFor="momo">
+            Mobile Money number
+          </label>
+          <div className="mt-2 flex w-full min-h-12 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-muted)] overflow-hidden transition-colors focus-within:border-[var(--color-accent)] focus-within:bg-[var(--color-surface)]">
+            <select
+              value={countryCode}
+              onChange={(event) => setCountryCode(event.target.value)}
+              className="shrink-0 bg-transparent pl-4 pr-2 text-sm text-[var(--color-ink)] outline-none border-r border-[var(--color-border)]"
+            >
+              <option value="+237">CM +237</option>
+              <option value="+33">FR +33</option>
+              <option value="+1">US +1</option>
+              <option value="+44">UK +44</option>
+              <option value="+234">NG +234</option>
+              <option value="+225">CI +225</option>
+              <option value="+221">SN +221</option>
+              <option value="+49">DE +49</option>
+            </select>
             <input
               id="momo"
-              type="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="+237 6XX XXX XXX"
-              className="mt-2 min-h-14 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-white outline-none placeholder:text-white/35 focus:border-[#a8d1df]"
+              type="number"
+              inputMode="numeric"
+              value={phoneNumber}
+              onChange={(event) => setPhoneNumber(event.target.value)}
+              placeholder="6XX XXX XXX"
+              className="min-w-0 flex-1 bg-transparent px-4 text-sm text-[var(--color-ink)] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoComplete="tel"
               required
             />
+          </div>
+          {username && <p className="mt-2 text-xs text-[var(--color-ink-faint)]">Playing as @{username}</p>}
 
-            <div className="mt-4 rounded-2xl border border-[#e6e34b]/30 bg-[#e6e34b]/10 p-4 text-sm leading-6 text-yellow-50 sm:mt-5">
-              You will receive a Mobile Money prompt for {formatCurrency(totals.total, game.currency)}: {formatCurrency(totals.donation, game.currency)} donation plus a 4% processing charge.
-            </div>
+          <div className="mt-4 pt-4 border-t border-[var(--color-border)] space-y-1.5">
+            <AmountRow label="Answer fee" value={formatCurrency(totals.fee, game.currency)} />
+            <AmountRow label="Processing charge" value={formatCurrency(totals.charge, game.currency)} />
+            <AmountRow label="Total" value={formatCurrency(totals.total, game.currency)} strong />
+          </div>
+        </div>
 
-            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 text-sm leading-6 text-white/78 transition hover:bg-white/14 sm:mt-5">
-              <input
-                type="checkbox"
-                checked={agreedToDonation}
-                onChange={(event) => setAgreedToDonation(event.target.checked)}
-                className="mt-1 h-5 w-5 shrink-0 accent-[#e6e34b]"
-                required
-              />
-              <span>I agree that this is a donation, not a payment.</span>
-            </label>
+        <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-surface-muted)]">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(event) => setAgreed(event.target.checked)}
+            className="h-5 w-5 shrink-0 accent-[var(--color-accent)]"
+            required
+          />
+          <span>I agree to pay the answer fee.</span>
+        </label>
 
-            <Button type="submit" size="lg" fullWidth className="mt-5 sm:mt-7" disabled={!agreedToDonation}>
-              Donate and join
-            </Button>
-          </form>
-        </section>
-      </div>
+        <Button type="submit" size="lg" fullWidth disabled={!agreed}>
+          Pay answer fee
+        </Button>
+      </form>
     </div>
   );
 }
@@ -140,8 +140,8 @@ export default function PaymentCheckout() {
 function AmountRow({ label, value, strong = false }) {
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-white/60">{label}</span>
-      <strong className={strong ? "text-lg text-white" : "text-white"}>{value}</strong>
+      <span className="text-[var(--color-ink-muted)]">{label}</span>
+      <strong className={strong ? "text-[var(--color-ink)]" : "font-medium text-[var(--color-ink)]"}>{value}</strong>
     </div>
   );
 }

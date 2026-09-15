@@ -7,6 +7,7 @@ import AnswerInput from "../../components/game/AnswerInput";
 import SubmitAnswerButton from "../../components/game/SubmitAnswerButton";
 import LoadingState from "../../components/ui/LoadingState";
 import ErrorState from "../../components/ui/ErrorState";
+import { isSignedIn } from "../../lib/auth";
 import { useToast } from "../../context/ToastContext";
 
 export default function GamePlay() {
@@ -21,6 +22,12 @@ export default function GamePlay() {
   const [timeUp, setTimeUp] = useState(false);
 
   const load = async () => {
+    if (!isSignedIn()) {
+      // Same as any other guarded screen: replace, not push, so the
+      // browser back button doesn't bounce between here and /signin.
+      navigate("/signin", { replace: true, state: { returnTo: `/games/${id}/play` } });
+      return;
+    }
     setStatus("loading");
     try {
       setGame(await fetchGame(id));

@@ -83,19 +83,22 @@ export default function GameDetails() {
   const countdownSeconds = game.status === GAME_STATUS.LIVE ? secondsToEnd : secondsToStart;
   const countdownLabel = game.status === GAME_STATUS.LIVE ? "Ends in" : "Starts in";
   const session = getSession();
-  const currentUserGuesser = session?.user
+  const gameParticipants = participants[game.id] || [];
+  // Being signed in doesn't mean you've joined THIS game - a shared link can
+  // land any signed-in (or signed-out) visitor here, and they still need to
+  // join. Whether "you" are already in only comes from a real join record.
+  const youParticipant = gameParticipants.find((p) => p.id === "you");
+  const hasJoined = Boolean(youParticipant);
+  const currentUserGuesser = youParticipant
     ? {
-        id: "current-user",
-        name: session.user.username ? `@${session.user.username}` : session.user.fullName,
-        joined: "You",
-        payment: "CONFIRMED",
-        answer: null,
+        ...youParticipant,
+        name: session?.user?.username ? `@${session.user.username}` : session?.user?.fullName || youParticipant.name,
         isCurrentUser: true
       }
     : null;
   const donationGuessers = [
     ...(currentUserGuesser ? [currentUserGuesser] : []),
-    ...(participants[game.id] || []),
+    ...gameParticipants.filter((p) => p.id !== "you"),
     ...liveGuessers
   ];
   const confirmedGuessers = donationGuessers.filter((guesser) => guesser.payment === "CONFIRMED").length;
@@ -115,6 +118,12 @@ export default function GameDetails() {
     if (game.status === GAME_STATUS.UPCOMING) return <Button size="lg" fullWidth disabled>Coming soon</Button>;
     if (game.status === GAME_STATUS.COMPLETED || game.status === GAME_STATUS.CLOSED) {
       return <Button size="lg" fullWidth onClick={() => navigate(`/games/${game.id}/result`)}>View result</Button>;
+    }
+    if (hasJoined) {
+      if (youParticipant.answer == null) {
+        return <Button size="lg" fullWidth onClick={() => navigate(`/games/${game.id}/play`)}>Answer</Button>;
+      }
+      return <Button size="lg" fullWidth disabled>Guess submitted</Button>;
     }
     return <Button size="lg" fullWidth onClick={handleEnter}>Join and donate</Button>;
   };

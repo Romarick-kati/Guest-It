@@ -727,7 +727,7 @@ html, body {
   isolation: isolate;
   display: grid;
   grid-template-rows: minmax(300px, 49vh) auto minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: 12px;
   width: min(100%, 560px);
   height: 100%;
   margin: 0 auto;
@@ -735,7 +735,7 @@ html, body {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 26%),
     #0d1822;
-  padding: 12px;
+  padding: 16px;
 }
 
 .live-video-stage {
@@ -790,7 +790,7 @@ html, body {
 .live-meta-strip,
 .live-rank-strip {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   overflow-x: auto;
   padding-bottom: 2px;
@@ -828,7 +828,7 @@ html, body {
   overflow: hidden;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.035);
-  padding: 10px;
+  padding: 14px;
 }
 
 .live-chat-scroll {
@@ -836,7 +836,7 @@ html, body {
   max-height: calc(100% - 44px);
   min-height: 0;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   overflow-y: auto;
   padding-right: 3px;
 }
@@ -845,23 +845,23 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 2;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .live-chat-row {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   min-width: 0;
   border-radius: 18px;
   background: transparent;
-  padding: 5px 2px;
+  padding: 8px 4px;
 }
 
 .live-chat-row.is-current {
   border: 1px solid rgba(247, 216, 92, 0.55);
   background: rgba(247, 216, 92, 0.13);
-  padding: 7px;
+  padding: 10px;
 }
 
 .live-blurred-answer {
@@ -907,8 +907,9 @@ html, body {
 
 @media (max-width: 767px) {
   .live-stream-shell {
-    grid-template-rows: minmax(300px, 48vh) auto minmax(165px, 1fr) auto;
-    padding: 8px;
+    grid-template-rows: minmax(240px, 36vh) auto minmax(220px, 1fr) auto;
+    gap: 10px;
+    padding: 10px;
   }
 
   .live-video-stage {
@@ -945,9 +946,9 @@ html, body {
 
 @media (max-width: 420px) {
   .live-stream-shell {
-    grid-template-rows: minmax(295px, 47vh) auto minmax(160px, 1fr) auto;
-    gap: 8px;
-    padding: 8px;
+    grid-template-rows: minmax(220px, 33vh) auto minmax(200px, 1fr) auto;
+    gap: 9px;
+    padding: 9px;
   }
 
   .live-stream-topbar {

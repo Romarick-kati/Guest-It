@@ -1,506 +1,254 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CameraCapture from "./CameraCapture";
 import EditProfile from "../editProfile/EditProfile";
-import "./Profile.css";
+import Button from "../ui/Button";
+import LoadingState from "../ui/LoadingState";
+import ErrorState from "../ui/ErrorState";
+import { icons } from "../ui/icons";
+import { fetchProfile, isSignedIn, signOut } from "../../lib/auth";
+import { useToast } from "../../context/ToastContext";
 
-function Profile() {
+const TrophyIcon = icons.trophy;
+const LogoutIcon = icons.logout;
+
+function initialsFor(name = "") {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export default function Profile() {
+  const navigate = useNavigate();
+  const { notify } = useToast();
+  const [status, setStatus] = useState("loading");
+  const [profile, setProfile] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
-  const [showCamera, setShowCamera] = useState(false);
-  const [cameraError, setCameraError] = useState("");
-
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-      setShowPhotoOptions(false);
-    }
-
-    event.target.value = "";
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
-
-      streamRef.current = null;
-    }
-
-    setShowCamera(false);
-  };
-
-  const openCamera = async () => {
-    setShowPhotoOptions(false);
-    setCameraError("");
-
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraError(
-          "Camera access is not supported by this browser."
-        );
-        setShowCamera(true);
-        return;
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user"
-        },
-        audio: false
-      });
-
-      streamRef.current = stream;
-      setShowCamera(true);
-    } catch (error) {
-      console.error("Camera error:", error);
-
-      if (error.name === "NotAllowedError") {
-        setCameraError(
-          "Camera permission was denied. Please allow camera access in your browser."
-        );
-      } else if (error.name === "NotFoundError") {
-        setCameraError(
-          "No camera was found on this device."
-        );
-      } else {
-        setCameraError(
-          "Unable to access the camera. Please check your camera permissions."
-        );
-      }
-
-      setShowCamera(true);
-    }
-  };
-
-  useEffect(() => {
-    if (showCamera && videoRef.current && streamRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
-  }, [showCamera]);
-
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => {
-          track.stop();
-        });
-      }
-    };
-  }, []);
-
-  const takePhoto = () => {
-    const video = videoRef.current;
-
-    if (!video) {
+  const load = async () => {
+    if (!isSignedIn()) {
+      // replace, not push: this runs on mount, so a plain push would leave
+      // /profile in history right behind /signin - hitting the browser
+      // back button would land back here and immediately redirect again,
+      // making back look broken.
+      navigate("/signin", { replace: true, state: { returnTo: "/profile" } });
       return;
     }
-
-    const canvas = document.createElement("canvas");
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const context = canvas.getContext("2d");
-
-    context.drawImage(
-      video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const imageUrl = URL.createObjectURL(blob);
-        setProfileImage(imageUrl);
-        stopCamera();
+    setStatus("loading");
+    try {
+      setProfile(await fetchProfile());
+      setStatus("success");
+    } catch (err) {
+      if (err.status === 401) {
+        // Session token no longer matches any account server-side (e.g. the
+        // backend restarted and lost its in-memory users) - retrying with
+        // the same stale token would just fail forever, so start over.
+        signOut();
+        navigate("/signin", { replace: true, state: { returnTo: "/profile" } });
+        return;
       }
-    }, "image/jpeg", 0.9);
+      setStatus("error");
+    }
   };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/signin");
+  };
+
+  if (status === "loading") return <LoadingState fullPage label="Loading your profile..." />;
+  if (status === "error") return <ErrorState onRetry={load} className="min-h-[50vh]" />;
+  if (!profile) return null;
 
   if (showEditProfile) {
     return (
       <EditProfile
+        profile={profile}
         profileImage={profileImage}
-        onImageChange={handleImageChange}
+        onImageChange={setProfileImage}
+        onSaved={(updated) => {
+          setProfile(updated);
+          setShowEditProfile(false);
+          notify("Profile updated.", { type: "success" });
+        }}
         onBack={() => setShowEditProfile(false)}
       />
     );
   }
 
   return (
-    <div className="profile-page">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6 sm:p-8 flex flex-col items-center text-center mb-6">
+        <span className="text-[11px] font-bold tracking-[0.2em] text-[var(--color-accent)] uppercase mb-5">
+          Player profile
+        </span>
 
-      {/* PROFILE HEADER */}
-      <div className="profile-header">
+        <CameraCapture
+          image={profileImage}
+          initials={initialsFor(profile.fullName)}
+          size={140}
+          onChange={setProfileImage}
+        />
 
-        <h1 className="profile-page-title">
-          PLAYER PROFILE
-        </h1>
+        <h1 className="font-display text-2xl font-bold text-[var(--color-ink)] mt-4">{profile.fullName}</h1>
+        <p className="text-sm text-[var(--color-ink-muted)] mt-0.5">@{profile.username}</p>
+        <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-[var(--color-accent)]">
+          <TrophyIcon className="h-3.5 w-3.5" aria-hidden="true" />
+          ON Point Player
+        </span>
 
-        {/* PROFILE PICTURE */}
-        <div className="profile-photo-wrapper">
-
-          {profileImage ? (
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="profile-photo"
-            />
-          ) : (
-            <div className="profile-photo-placeholder">
-              GT
-            </div>
-          )}
-
-          {/* SMALL EDIT PENCIL */}
-          <button
-            type="button"
-            className="profile-photo-edit"
-            title="Edit profile picture"
-            onClick={() =>
-              setShowPhotoOptions(!showPhotoOptions)
-            }
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L14.06 6.19 3 17.25z" />
-              <path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 3.75-1.83z" />
-            </svg>
-          </button>
-
-          {/* PHOTO OPTIONS */}
-          {showPhotoOptions && (
-            <div className="photo-options">
-
-              {/* GALLERY */}
-              <label
-                htmlFor="profile-gallery-image"
-                className="photo-option"
-              >
-                Gallery
-              </label>
-
-              <input
-                id="profile-gallery-image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                hidden
-              />
-
-              {/* CAMERA */}
-              <button
-                type="button"
-                className="photo-option photo-camera-option"
-                onClick={openCamera}
-              >
-                Camera
-              </button>
-
-            </div>
-          )}
-
+        <div className="flex items-center gap-2 mt-5">
+          <Button size="sm" onClick={() => setShowEditProfile(true)}>
+            Edit profile
+          </Button>
+          <Button size="sm" variant="outline" leftIcon={<LogoutIcon className="h-4 w-4" />} onClick={handleSignOut}>
+            Sign out
+          </Button>
         </div>
-
-        {/* PLAYER INFORMATION */}
-        <div className="profile-details">
-
-          <h2>Ghislain Tabot</h2>
-
-          <p className="profile-username">
-            @ghislain123
-          </p>
-
-          <p className="profile-status">
-            ON Point Player
-          </p>
-
-          <button
-            className="edit-profile-btn"
-            onClick={() => setShowEditProfile(true)}
-          >
-            Edit Profile
-          </button>
-
-        </div>
-
       </div>
 
-      {/* CAMERA MODAL */}
-      {showCamera && (
-        <div className="camera-overlay">
-
-          <div className="camera-modal">
-
-            <div className="camera-header">
-              <h2>Take Profile Picture</h2>
-
-              <button
-                type="button"
-                className="camera-close"
-                onClick={stopCamera}
-              >
-                ×
-              </button>
-            </div>
-
-            {cameraError ? (
-              <div className="camera-error">
-                <p>{cameraError}</p>
-
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="camera-cancel-btn"
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="camera-preview">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                </div>
-
-                <div className="camera-actions">
-
-                  <button
-                    type="button"
-                    className="camera-cancel-btn"
-                    onClick={stopCamera}
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="button"
-                    className="take-photo-btn"
-                    onClick={takePhoto}
-                  >
-                    Take Photo
-                  </button>
-
-                </div>
-              </>
-            )}
-
-          </div>
-
+      <Section label="Account" title="Personal information">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl px-5">
+          <InfoRow label="Full name" value={profile.fullName} />
+          <InfoRow label="Username" value={`@${profile.username}`} />
+          <InfoRow label="Phone number" value={profile.phoneNumber} />
+          <InfoRow label="Account type" value="Player" last />
         </div>
-      )}
+      </Section>
 
-      {/* PERSONAL INFORMATION */}
-      <section className="profile-section">
-
-        <div className="section-heading">
-          <span className="section-label">ACCOUNT</span>
-          <h2>Personal Information</h2>
+      <Section label="Performance" title="Guess it statistics">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard label="Games played" value="48" />
+          <StatCard label="Games won" value="31" />
+          <StatCard label="Points" value="2,450" />
+          <StatCard label="Win rate" value="65%" />
         </div>
 
-        <div className="information-card">
-
-          <div className="information-item">
-            <span>Full Name</span>
-            <strong>Ghislain Tabot</strong>
-          </div>
-
-          <div className="information-item">
-            <span>Username</span>
-            <strong>@ghislain123</strong>
-          </div>
-
-          <div className="information-item">
-            <span>Phone Number</span>
-            <strong>+237 6XX XXX XXX</strong>
-          </div>
-
-          <div className="information-item">
-            <span>Account Type</span>
-            <strong>Player</strong>
-          </div>
-
+        <div className="mt-3 bg-[var(--color-ink)] text-[var(--color-bg)] rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-0">
+          <PerformanceItem label="Accuracy" value="82%" />
+          <PerformanceItem label="Best score" value="950" />
+          <PerformanceItem label="Winning streak" value="7 games" last />
         </div>
+      </Section>
 
-      </section>
-
-      {/* GUESS IT STATISTICS */}
-      <section className="profile-section">
-
-        <div className="section-heading">
-          <span className="section-label">PERFORMANCE</span>
-          <h2>Guess it Statistics</h2>
+      <Section label="Progress" title="Achievements">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <AchievementCard badge="10W" title="First victory" description="Won your first 10 games." />
+          <AchievementCard badge="1K" title="Point master" description="Earned more than 1,000 points." />
+          <AchievementCard badge="7S" title="Hot streak" description="Won 7 games consecutively." />
+          <AchievementCard badge="50" title="Legend" description="Win 50 Guess it games." locked />
         </div>
+      </Section>
 
-        <div className="statistics-grid">
-
-          <div className="stat-card">
-            <span>Games Played</span>
-            <strong>48</strong>
+      <Section label="Leaderboard" title="Rank & leaderboard">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 sm:p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+            <span className="text-sm text-[var(--color-ink-muted)]">Your current rank</span>
+            <strong className="font-display text-3xl text-[var(--color-ink)]">#24</strong>
           </div>
 
-          <div className="stat-card">
-            <span>Games Won</span>
-            <strong>31</strong>
+          <div className="grid grid-cols-3 gap-4 py-4">
+            <RankStat label="Qualified games" value="42" />
+            <RankStat label="Total points" value="2,450" />
+            <RankStat label="Next rank" value="#20" />
           </div>
 
-          <div className="stat-card">
-            <span>Points</span>
-            <strong>2,450</strong>
+          <div>
+            <div className="flex items-center justify-between mb-2 text-xs">
+              <span className="text-[var(--color-ink-muted)]">Progress to next rank</span>
+              <strong className="text-[var(--color-ink)]">85%</strong>
+            </div>
+            <div className="h-2 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden">
+              <div className="h-full rounded-full bg-[var(--color-accent)]" style={{ width: "85%" }} />
+            </div>
           </div>
-
-          <div className="stat-card">
-            <span>Win Rate</span>
-            <strong>65%</strong>
-          </div>
-
         </div>
-
-        <div className="performance-card">
-
-          <div className="performance-item">
-            <span>Accuracy</span>
-            <strong>82%</strong>
-          </div>
-
-          <div className="performance-item">
-            <span>Best Score</span>
-            <strong>950</strong>
-          </div>
-
-          <div className="performance-item">
-            <span>Winning Streak</span>
-            <strong>7 Games</strong>
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* ACHIEVEMENTS */}
-      <section className="profile-section">
-
-        <div className="section-heading">
-          <span className="section-label">PROGRESS</span>
-          <h2>Achievements</h2>
-        </div>
-
-        <div className="achievements-grid">
-
-          <div className="achievement-card">
-            <div className="achievement-badge">
-              10W
-            </div>
-
-            <div>
-              <h3>First Victory</h3>
-              <p>Won your first 10 games.</p>
-            </div>
-          </div>
-
-          <div className="achievement-card">
-            <div className="achievement-badge">
-              1K
-            </div>
-
-            <div>
-              <h3>Point Master</h3>
-              <p>Earned more than 1,000 points.</p>
-            </div>
-          </div>
-
-          <div className="achievement-card">
-            <div className="achievement-badge">
-              7S
-            </div>
-
-            <div>
-              <h3>Hot Streak</h3>
-              <p>Won 7 games consecutively.</p>
-            </div>
-          </div>
-
-          <div className="achievement-card locked">
-            <div className="achievement-badge">
-              50
-            </div>
-
-            <div>
-              <h3>Legend</h3>
-              <p>Win 50 Guess it games.</p>
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* RANK */}
-      <section className="profile-section">
-
-        <div className="section-heading">
-          <span className="section-label">LEADERBOARD</span>
-          <h2>Rank & Leaderboard</h2>
-        </div>
-
-        <div className="rank-card">
-
-          <div className="rank-position">
-            <span>Your Current Rank</span>
-            <strong>#24</strong>
-          </div>
-
-          <div className="rank-details">
-
-            <div>
-              <span>Qualified Games</span>
-              <strong>42</strong>
-            </div>
-
-            <div>
-              <span>Total Points</span>
-              <strong>2,450</strong>
-            </div>
-
-            <div>
-              <span>Next Rank</span>
-              <strong>#20</strong>
-            </div>
-
-          </div>
-
-          <div className="rank-progress">
-
-            <div className="rank-progress-header">
-              <span>Progress to next rank</span>
-              <strong>85%</strong>
-            </div>
-
-            <div className="progress-bar">
-              <div className="progress-fill"></div>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
+      </Section>
     </div>
   );
 }
 
-export default Profile;
+function Section({ label, title, children }) {
+  return (
+    <section className="mb-6">
+      <div className="mb-3">
+        <span className="block text-[10px] font-bold tracking-[0.2em] text-[var(--color-accent)] uppercase mb-1">
+          {label}
+        </span>
+        <h2 className="font-display text-lg font-semibold text-[var(--color-ink)]">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function InfoRow({ label, value, last = false }) {
+  return (
+    <div className={`flex items-center justify-between gap-3 py-3.5 ${last ? "" : "border-b border-[var(--color-border)]"}`}>
+      <span className="text-sm text-[var(--color-ink-muted)]">{label}</span>
+      <strong className="text-sm text-[var(--color-ink)]">{value}</strong>
+    </div>
+  );
+}
+
+function StatCard({ label, value }) {
+  return (
+    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl px-4 py-4">
+      <p className="text-xs text-[var(--color-ink-muted)] mb-1.5">{label}</p>
+      <p className="font-display text-2xl font-bold text-[var(--color-ink)]">{value}</p>
+    </div>
+  );
+}
+
+function PerformanceItem({ label, value, last = false }) {
+  return (
+    <div
+      className={`pb-4 sm:pb-0 sm:px-5 first:sm:pl-0 border-b sm:border-b-0 sm:border-r border-[var(--color-bg)]/15 ${
+        last ? "border-b-0 sm:border-r-0 pb-0" : ""
+      }`}
+    >
+      <p className="text-[11px] text-[var(--color-bg)]/65 mb-1">{label}</p>
+      <p className="font-display text-lg font-bold text-[var(--color-accent)]">{value}</p>
+    </div>
+  );
+}
+
+function RankStat({ label, value }) {
+  return (
+    <div>
+      <p className="text-[11px] text-[var(--color-ink-muted)] mb-1">{label}</p>
+      <strong className="text-base text-[var(--color-ink)]">{value}</strong>
+    </div>
+  );
+}
+
+function AchievementCard({ badge, title, description, locked = false }) {
+  return (
+    <div
+      className={`bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 flex items-center gap-3.5 ${
+        locked ? "opacity-50" : ""
+      }`}
+    >
+      <div
+        className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center font-display font-bold text-sm ${
+          locked
+            ? "bg-[var(--color-surface-sunken)] text-[var(--color-ink-muted)]"
+            : "bg-[var(--color-accent-soft)] text-[var(--color-accent)]"
+        }`}
+      >
+        {badge}
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-[var(--color-ink)]">{title}</h3>
+        <p className="text-xs text-[var(--color-ink-muted)] mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}

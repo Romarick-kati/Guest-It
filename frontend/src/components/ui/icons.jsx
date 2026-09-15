@@ -153,6 +153,12 @@ export const icons = {
       <path d="M3 14.5l4.3-4.3a1.5 1.5 0 012.1 0l1.4 1.4M11.5 12l1.6-1.6a1.5 1.5 0 012.1 0l2.3 2.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  camera: (props) => (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+      <path d="M3 7.3a1.8 1.8 0 011.8-1.8h1l.7-1.2c.2-.35.55-.55.95-.55h4.1c.4 0 .75.2.95.55l.7 1.2h1a1.8 1.8 0 011.8 1.8v6.4a1.8 1.8 0 01-1.8 1.8H4.8A1.8 1.8 0 013 13.7V7.3z" strokeLinejoin="round" />
+      <circle cx="10" cy="10.6" r="2.6" />
+    </svg>
+  ),
   play: (props) => (
     <svg viewBox="0 0 20 20" fill="currentColor" {...props}>
       <path d="M6.5 4.8a1 1 0 011.53-.85l7 4.2a1 1 0 010 1.7l-7 4.2A1 1 0 016.5 13.2V4.8z" />
