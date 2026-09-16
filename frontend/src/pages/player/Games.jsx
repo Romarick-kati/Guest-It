@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import GameCard from "../../components/game/GameCard";
 import LoadingState from "../../components/ui/LoadingState";
 import ErrorState from "../../components/ui/ErrorState";
 import EmptyState from "../../components/ui/EmptyState";
-import { fetchGames } from "../../lib/api";
+import { fetchAllParticipants, fetchGames } from "../../lib/api";
 import { GAME_STATUS } from "../../lib/gameStatus";
+import { clearLastGameId } from "../../lib/lastGame";
 
 const TABS = [
   { key: "live", label: "Live games", statuses: [GAME_STATUS.LIVE] },
@@ -15,13 +17,18 @@ const TABS = [
 export default function Games() {
   const [status, setStatus] = useState("idle");
   const [allGames, setAllGames] = useState([]);
+  const [yourEntries, setYourEntries] = useState([]);
   const [tab, setTab] = useState("live");
 
   const load = async () => {
     setStatus("loading");
     try {
-      const data = await fetchGames();
-      setAllGames(data);
+      const [games, participants] = await Promise.all([fetchGames(), fetchAllParticipants()]);
+      setAllGames(games);
+      // Every game instance this player has actually joined, most recent
+      // first - `seed` marks scripted demo data (see mockData.js's g8),
+      // not something the player really did.
+      setYourEntries(participants.filter((p) => p.id === "you" && !p.seed).reverse());
       setStatus("success");
     } catch (e) {
       setStatus("error");
@@ -30,6 +37,9 @@ export default function Games() {
 
   useEffect(() => {
     load();
+    // Being on the list IS the "no specific game" state - Play should mean
+    // "the list" again until a specific game is opened once more.
+    clearLastGameId();
   }, []);
 
   const activeTab = TABS.find((t) => t.key === tab);
@@ -48,6 +58,37 @@ export default function Games() {
           Match the exact number and win real prizes.
         </p>
       </div>
+
+      {yourEntries.length > 0 && (
+        <div className="mb-6">
+          <span className="block text-[10px] font-bold tracking-[0.2em] text-[var(--color-accent)] uppercase mb-1">
+            Your activity
+          </span>
+          <h2 className="font-display text-lg font-semibold text-[var(--color-ink)] mb-3">Games you've joined</h2>
+          <div className="flex gap-3 overflow-x-auto scroll-thin -mx-4 px-4 sm:mx-0 sm:px-0">
+            {yourEntries.map((entry) => (
+              <Link
+                key={`${entry.gameId}-${entry.joined}`}
+                to={`/games/${entry.gameId}`}
+                replace
+                className="shrink-0 w-56 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 hover:border-[var(--color-border-strong)] hover-lift"
+              >
+                <p className="font-display font-semibold text-sm text-[var(--color-ink)] truncate">{entry.gameTitle}</p>
+                <p className="text-xs text-[var(--color-ink-muted)] mt-1">{entry.submittedAt || entry.joined}</p>
+                <span
+                  className={`inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                    entry.status === "SUBMITTED"
+                      ? "bg-[var(--color-success-soft)] text-[var(--color-success)]"
+                      : "bg-[var(--color-warning-soft)] text-[var(--color-warning)]"
+                  }`}
+                >
+                  {entry.status === "SUBMITTED" ? "Answered" : "Guess pending"}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 mb-6 overflow-x-auto scroll-thin -mx-4 px-4 sm:mx-0 sm:px-0">
         {TABS.map((t) => (

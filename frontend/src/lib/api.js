@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------
-// API SERVICE LAYER (mocked)
+// API SERVICE LAYER
 // Pages/components call these functions instead of touching mock data or
-// fetch() directly. When the backend is ready, only this file needs to
-// change to real endpoint calls - no page needs to be touched.
+// fetch() directly. Games are now real (backed by the `games` collection in
+// backend/src/server.js) - everything else here is still the original mock
+// store in mockData.js.
 // ---------------------------------------------------------------------------
 import {
-  games,
   participants,
   winners,
   users,
@@ -15,27 +15,78 @@ import {
   recentActivity,
   comments,
   resolutions,
-  getGameById,
   getUserById,
   getAllParticipants,
   joinParticipant,
   recordSubmission,
-  insertGame,
-  upsertGame,
 } from "./mockData";
+import { API_BASE_URL, httpError } from "./httpBase";
+import { getSession } from "./auth";
 
 const delay = (ms = 400) => new Promise((res) => setTimeout(res, ms));
 
+// ---------------------------------------------------------------------------
+// GAMES - backed by the real backend now. A couple of other places
+// (PlayerLayout's header title, lib/playerStats.js) need a game's title/
+// result synchronously, before they'd have a chance to await a fetch - this
+// small cache, kept warm by every call below, is what getCachedGame serves
+// them from. It's read-only best-effort: if nothing's been fetched yet in
+// this session, callers just get `undefined` and skip showing that detail.
+// ---------------------------------------------------------------------------
+const gameCache = new Map();
+
+function cacheGame(game) {
+  if (game?.id) gameCache.set(game.id, game);
+  return game;
+}
+
+export function getCachedGame(id) {
+  return gameCache.get(id);
+}
+
+// `auth: true` attaches the signed-in session's token - required for the
+// admin-only writes (create/update) but not for the public reads.
+async function gamesRequest(path, { method, body, auth } = {}) {
+  const headers = {};
+  if (body) headers["Content-Type"] = "application/json";
+  if (auth) {
+    const token = getSession()?.token;
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, { method, body, headers });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw httpError(data.message || "Games request failed.", response.status);
+  return data;
+}
+
 export async function fetchGames() {
-  await delay();
-  return games;
+  const list = await gamesRequest("/api/games");
+  list.forEach(cacheGame);
+  return list;
 }
 
 export async function fetchGame(id) {
-  await delay();
-  const game = getGameById(id);
-  if (!game) throw new Error("Game not found");
-  return game;
+  try {
+    return cacheGame(await gamesRequest(`/api/games/${id}`));
+  } catch (error) {
+    if (error.status === 404) throw new Error("Game not found");
+    throw error;
+  }
+}
+
+export async function createGame(payload) {
+  return cacheGame(await gamesRequest("/api/games", { method: "POST", body: JSON.stringify(payload), auth: true }));
+}
+
+export async function updateGame(id, payload) {
+  return cacheGame(await gamesRequest(`/api/games/${id}`, { method: "PATCH", body: JSON.stringify(payload), auth: true }));
+}
+
+// The one admin-dashboard number that isn't derivable from the public
+// games list - the real registered-user count.
+export async function fetchAdminStats() {
+  return gamesRequest("/api/admin/stats", { auth: true });
 }
 
 export async function fetchParticipants(gameId) {
@@ -44,10 +95,13 @@ export async function fetchParticipants(gameId) {
 }
 
 export async function fetchAllParticipants() {
-  await delay();
+  // Warms the game cache so gameTitle below resolves to a real title
+  // instead of falling back to the bare id - games live on the backend now,
+  // so getAllParticipants (synchronous) can't look titles up itself.
+  await fetchGames();
   // Recomputed on every call so it reflects anyone who has joined or
   // submitted since the app loaded, not just the seeded demo data.
-  return getAllParticipants();
+  return getAllParticipants().map((p) => ({ ...p, gameTitle: getCachedGame(p.gameId)?.title || p.gameId }));
 }
 
 export async function fetchWinners() {
@@ -87,22 +141,6 @@ export async function fetchRecentActivity() {
   return recentActivity;
 }
 
-// Simulated mutations - always resolve successfully for UI-building purposes.
-// Real validation/business rules belong to the backend. Both now actually
-// write into the shared `games` store (see mockData.js's insertGame/
-// upsertGame) instead of just echoing the payload back unpersisted - so a
-// created game shows up in the games list, and an edited one (including
-// setting "Correct answer" to publish a result) sticks on refetch.
-export async function createGame(payload) {
-  await delay(600);
-  return insertGame(payload);
-}
-
-export async function updateGame(id, payload) {
-  await delay(600);
-  return upsertGame(id, payload);
-}
-
 // ---------------------------------------------------------------------------
 // PLAYER REGISTRATION - this is the fix for the payment/entry flow never
 // actually registering the player anywhere. `joinGame` is called once,
@@ -119,9 +157,8 @@ export async function updateGame(id, payload) {
 // Idempotent - safe to call again (e.g. the player navigates back to this
 // screen) since joinParticipant no-ops if they're already registered.
 export async function joinGame(gameId, info = {}) {
-  await delay(300);
-  const game = getGameById(gameId);
-  if (!game) throw new Error("Game not found");
+  const game = await fetchGame(gameId);
+  const alreadyJoined = Boolean(participants[gameId]?.some((p) => p.id === "you"));
 
   const joined = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const participant = {
@@ -137,7 +174,15 @@ export async function joinGame(gameId, info = {}) {
     answer: null,
     eligibility: "ELIGIBLE",
   };
-  return joinParticipant(gameId, participant);
+  const result = joinParticipant(gameId, participant);
+
+  // Only bump the real, persisted count the first time this player
+  // actually joins - not on every revisit to this screen.
+  if (!alreadyJoined) {
+    cacheGame(await gamesRequest(`/api/games/${gameId}/join`, { method: "POST" }));
+  }
+
+  return result;
 }
 
 export async function submitAnswer(gameId, answer) {
@@ -147,6 +192,7 @@ export async function submitAnswer(gameId, answer) {
   // Updates the same "you" record joinGame created - not a second,
   // disconnected write - so admin views/results see one consistent entry.
   recordSubmission(gameId, "you", answer);
+  cacheGame(await gamesRequest(`/api/games/${gameId}/submissions`, { method: "POST" }));
   return { gameId, answer, submittedAt: new Date().toISOString() };
 }
 

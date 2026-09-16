@@ -89,7 +89,7 @@ export default function GamePlay() {
 
       <form onSubmit={handleSubmit} className="mt-6">
         <p className="text-center font-display font-semibold text-[var(--color-ink)] mb-3">
-          {game.question || `How many ${game.unit} are inside?`}
+          {game.question || "How many are inside?"}
         </p>
 
         <AnswerInput

@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_BASE_URL, httpError } from "./httpBase";
+
 const SESSION_KEY = "onpoint_session";
 
 export function getSession() {
@@ -19,12 +20,6 @@ export function isSignedIn() {
 
 export function signOut() {
   localStorage.removeItem(SESSION_KEY);
-}
-
-function httpError(message, status) {
-  const error = new Error(message);
-  error.status = status;
-  return error;
 }
 
 export async function fetchProfile() {

@@ -7,6 +7,7 @@ import SplashScreen from "./components/ui/SplashScreen";
 import PlayerLayout from "./layouts/PlayerLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import Landing from "./pages/Landing";
+import { getSession } from "./lib/auth";
 
 // Player pages
 import Games from "./pages/player/Games";
@@ -52,7 +53,11 @@ function AuthPage({ initialMode = "signin" }) {
   const returnTo = location.state?.returnTo || "/games/g1";
 
   const handleAuthenticated = () => {
-    navigate(returnTo, { replace: true });
+    // An admin account always lands on their own dashboard, never the
+    // player one - even if returnTo points into the player app (e.g. they
+    // got bounced here from a player page before signing in as admin).
+    const isAdmin = Boolean(getSession()?.user?.isAdmin);
+    navigate(isAdmin ? "/admin" : returnTo, { replace: true });
   };
 
   const handleBack = () => {
@@ -75,11 +80,12 @@ export default function App() {
         {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
         <BrowserRouter>
           <Routes>
-            {/* Temporary entry point until real sign-in exists (backend
-                team's scope). Sends everyone straight to the participant
-                dashboard after the splash. Admin is reached by URL only
-                (/admin) until real login is connected and can route admins
-                there directly. */}
+            {/* No account-aware landing page yet, so this just sends
+                everyone straight to the participant dashboard after the
+                splash. Signing in still routes an admin account to /admin
+                (see AuthPage's handleAuthenticated) and AdminLayout/
+                PlayerLayout each redirect the other role away, so this only
+                matters for the very first, not-yet-signed-in load. */}
             <Route path="/" element={<Landing />} />
 
             {/* Player experience */}

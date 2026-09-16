@@ -80,7 +80,7 @@ export default function GameResult() {
         <p className="text-xs uppercase tracking-wide text-[var(--color-ink-faint)] mb-1">Game result</p>
         <h1 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{game.title}</h1>
         <p className="text-sm text-[var(--color-ink-muted)] mt-1">
-          Correct answer: <span className="font-medium text-[var(--color-ink)]">{game.result.correctAnswer}</span> {game.unit}
+          Correct answer: <span className="font-medium text-[var(--color-ink)]">{game.result.correctAnswer}</span>{game.unit ? ` ${game.unit}` : ""}
         </p>
       </div>
 

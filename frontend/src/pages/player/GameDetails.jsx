@@ -10,6 +10,7 @@ import { getSession, isSignedIn } from "../../lib/auth";
 import { fetchGame } from "../../lib/api";
 import { participants } from "../../lib/mockData";
 import { GAME_STATUS, formatCurrency } from "../../lib/gameStatus";
+import { setLastGameId } from "../../lib/lastGame";
 
 const leaders = [
   { rank: 1, name: "Lila Anderson", score: 11868, avatar: "lila" },
@@ -29,7 +30,6 @@ const liveJoiners = [
   { id: "live-sam", name: "Sam K.", joined: "Just now", payment: "CONFIRMED", status: "SUBMITTED", answer: 329 },
 ];
 
-const ChevronLeftIcon = icons.chevronLeft;
 const CrownIcon = icons.crown;
 
 export default function GameDetails() {
@@ -54,6 +54,10 @@ export default function GameDetails() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    if (game?.status === GAME_STATUS.LIVE) setLastGameId(game.id);
+  }, [game]);
 
   useEffect(() => {
     if (!game || game.status !== GAME_STATUS.LIVE) return undefined;
@@ -102,7 +106,11 @@ export default function GameDetails() {
     ...liveGuessers
   ];
   const confirmedGuessers = donationGuessers.filter((guesser) => guesser.payment === "CONFIRMED").length;
-  const winnerPool = confirmedGuessers * 80;
+  // 80% of each entry fee goes to the winner pool, 20% to the platform -
+  // proportional to this game's real entry fee, not a flat amount (a 50
+  // FCFA game and a 200 FCFA game don't pay the same per guesser).
+  const perGuesserShare = Math.round(game.entryFee * 0.8);
+  const winnerPool = confirmedGuessers * perGuesserShare;
 
   const handleEnter = () => {
     if (!isSignedIn()) {
@@ -139,14 +147,8 @@ export default function GameDetails() {
           />
           <div className="live-video-shade" />
           <header className="live-stream-topbar">
-            <IconButton label="Go back" onClick={() => navigate(-1)}>
-              <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-            </IconButton>
             <div className="min-w-0">
-            <div className="flex items-center gap-2">
               <span className="rounded-full bg-red-500 px-2 py-1 text-[10px] font-black uppercase leading-none">Live</span>
-            </div>
-              <h1 className="mt-1 truncate font-display text-2xl font-black">{game.title}</h1>
             </div>
             <div className="ml-auto text-right">
               <p className="text-[10px] font-bold text-white/65">{countdownLabel}</p>
@@ -193,7 +195,7 @@ export default function GameDetails() {
 
         <footer className="live-action-bar">
           <div className="min-w-0 rounded-full bg-white/8 px-4 py-3 text-xs font-semibold text-white/72">
-            80 FCFA from each donation goes to the winner pool.
+            {formatCurrency(perGuesserShare, game.currency)} from each entry goes to the winner pool.
           </div>
           {renderCta()}
         </footer>
@@ -254,14 +256,6 @@ function GuesserMessage({ guesser, avatar, pinned = false, fresh = false, isLive
         </p>
       </div>
     </article>
-  );
-}
-
-function IconButton({ label, onClick, children }) {
-  return (
-    <button type="button" onClick={onClick} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/35 text-white shadow-lg backdrop-blur transition hover:bg-black/55" aria-label={label} title={label}>
-      {children}
-    </button>
   );
 }
 

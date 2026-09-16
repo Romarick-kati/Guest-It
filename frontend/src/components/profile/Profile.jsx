@@ -7,6 +7,7 @@ import LoadingState from "../ui/LoadingState";
 import ErrorState from "../ui/ErrorState";
 import { icons } from "../ui/icons";
 import { fetchProfile, isSignedIn, signOut } from "../../lib/auth";
+import { computePlayerStats } from "../../lib/playerStats";
 import { useToast } from "../../context/ToastContext";
 
 const TrophyIcon = icons.trophy;
@@ -24,6 +25,7 @@ export default function Profile() {
   const { notify } = useToast();
   const [status, setStatus] = useState("loading");
   const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
 
@@ -38,7 +40,9 @@ export default function Profile() {
     }
     setStatus("loading");
     try {
-      setProfile(await fetchProfile());
+      const [profileData, statsData] = await Promise.all([fetchProfile(), computePlayerStats()]);
+      setProfile(profileData);
+      setStats(statsData);
       setStatus("success");
     } catch (err) {
       if (err.status === 401) {
@@ -65,7 +69,7 @@ export default function Profile() {
 
   if (status === "loading") return <LoadingState fullPage label="Loading your profile..." />;
   if (status === "error") return <ErrorState onRetry={load} className="min-h-[50vh]" />;
-  if (!profile) return null;
+  if (!profile || !stats) return null;
 
   if (showEditProfile) {
     return (
@@ -124,51 +128,29 @@ export default function Profile() {
       </Section>
 
       <Section label="Performance" title="Guess it statistics">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard label="Games played" value="48" />
-          <StatCard label="Games won" value="31" />
-          <StatCard label="Points" value="2,450" />
-          <StatCard label="Win rate" value="65%" />
+        <div className="grid grid-cols-3 gap-3">
+          <StatCard label="Games played" value={stats.gamesPlayed} />
+          <StatCard label="Games won" value={stats.gamesWon} />
+          <StatCard label="Win rate" value={stats.winRate == null ? "—" : `${stats.winRate}%`} />
         </div>
 
-        <div className="mt-3 bg-[var(--color-ink)] text-[var(--color-bg)] rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-0">
-          <PerformanceItem label="Accuracy" value="82%" />
-          <PerformanceItem label="Best score" value="950" />
-          <PerformanceItem label="Winning streak" value="7 games" last />
+        <div className="mt-3 bg-[var(--color-ink)] text-[var(--color-bg)] rounded-2xl p-5 grid grid-cols-2 gap-4">
+          <PerformanceItem label="Accuracy" value={stats.accuracy == null ? "—" : `${stats.accuracy}%`} />
+          <PerformanceItem label="Winning streak" value={`${stats.winningStreak} games`} last />
         </div>
       </Section>
 
       <Section label="Progress" title="Achievements">
         <div className="grid sm:grid-cols-2 gap-3">
-          <AchievementCard badge="10W" title="First victory" description="Won your first 10 games." />
-          <AchievementCard badge="1K" title="Point master" description="Earned more than 1,000 points." />
-          <AchievementCard badge="7S" title="Hot streak" description="Won 7 games consecutively." />
-          <AchievementCard badge="50" title="Legend" description="Win 50 Guess it games." locked />
-        </div>
-      </Section>
-
-      <Section label="Leaderboard" title="Rank & leaderboard">
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 sm:p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
-            <span className="text-sm text-[var(--color-ink-muted)]">Your current rank</span>
-            <strong className="font-display text-3xl text-[var(--color-ink)]">#24</strong>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 py-4">
-            <RankStat label="Qualified games" value="42" />
-            <RankStat label="Total points" value="2,450" />
-            <RankStat label="Next rank" value="#20" />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2 text-xs">
-              <span className="text-[var(--color-ink-muted)]">Progress to next rank</span>
-              <strong className="text-[var(--color-ink)]">85%</strong>
-            </div>
-            <div className="h-2 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden">
-              <div className="h-full rounded-full bg-[var(--color-accent)]" style={{ width: "85%" }} />
-            </div>
-          </div>
+          {stats.achievements.map((achievement) => (
+            <AchievementCard
+              key={achievement.key}
+              badge={achievement.badge}
+              title={achievement.title}
+              description={achievement.description}
+              locked={!achievement.unlocked}
+            />
+          ))}
         </div>
       </Section>
     </div>
@@ -209,22 +191,9 @@ function StatCard({ label, value }) {
 
 function PerformanceItem({ label, value, last = false }) {
   return (
-    <div
-      className={`pb-4 sm:pb-0 sm:px-5 first:sm:pl-0 border-b sm:border-b-0 sm:border-r border-[var(--color-bg)]/15 ${
-        last ? "border-b-0 sm:border-r-0 pb-0" : ""
-      }`}
-    >
+    <div className={`px-4 first:pl-0 ${last ? "" : "border-r border-[var(--color-bg)]/15"}`}>
       <p className="text-[11px] text-[var(--color-bg)]/65 mb-1">{label}</p>
       <p className="font-display text-lg font-bold text-[var(--color-accent)]">{value}</p>
-    </div>
-  );
-}
-
-function RankStat({ label, value }) {
-  return (
-    <div>
-      <p className="text-[11px] text-[var(--color-ink-muted)] mb-1">{label}</p>
-      <strong className="text-base text-[var(--color-ink)]">{value}</strong>
     </div>
   );
 }

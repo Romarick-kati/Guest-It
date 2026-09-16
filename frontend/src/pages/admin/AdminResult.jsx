@@ -92,7 +92,8 @@ export default function AdminResult() {
               <span className="text-xs text-[var(--color-ink-faint)]">{game.title}</span>
             </div>
             <p className="font-display text-3xl font-semibold text-[var(--color-ink)]">
-              {game.result.correctAnswer} <span className="text-base font-normal text-[var(--color-ink-muted)]">{game.unit}</span>
+              {game.result.correctAnswer}
+              {game.unit && <span className="text-base font-normal text-[var(--color-ink-muted)]"> {game.unit}</span>}
             </p>
             <p className="text-sm text-[var(--color-ink-muted)] mt-2">
               Determined by the system from submitted entries — nobody on the team picks the winner.

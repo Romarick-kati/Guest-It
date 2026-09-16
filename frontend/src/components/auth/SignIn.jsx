@@ -7,9 +7,11 @@ import "./SignIn.css";
 const ChevronLeftIcon = icons.chevronLeft;
 
 function SignIn({ onBack, onSignUp, onAuthenticated }) {
+  const [method, setMethod] = useState("phone");
   const [showPassword, setShowPassword] = useState(false);
   const [countryCode, setCountryCode] = useState("+237");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -19,7 +21,7 @@ function SignIn({ onBack, onSignUp, onAuthenticated }) {
     setSubmitting(true);
     setError("");
     try {
-      await signIn({ countryCode, phoneNumber, password });
+      await signIn(method === "email" ? { email, password } : { countryCode, phoneNumber, password });
       onAuthenticated?.();
     } catch (err) {
       setError(err.message);
@@ -67,31 +69,64 @@ function SignIn({ onBack, onSignUp, onAuthenticated }) {
 
             <form className="auth-form" onSubmit={handleSubmit}>
 
-              {/* PHONE NUMBER */}
-              <div className="form-field">
-                <label>Phone Number</label>
+              {/* SIGN-IN METHOD */}
+              <div className="signin-method-toggle">
+                <button
+                  type="button"
+                  className={method === "phone" ? "active" : ""}
+                  onClick={() => setMethod("phone")}
+                >
+                  Phone
+                </button>
+                <button
+                  type="button"
+                  className={method === "email" ? "active" : ""}
+                  onClick={() => setMethod("email")}
+                >
+                  Email
+                </button>
+              </div>
 
-                <div className="phone-input">
-                  <select value={countryCode} onChange={(event) => setCountryCode(event.target.value)}>
-                    <option value="+237">CM +237</option>
-                    <option value="+33">FR +33</option>
-                    <option value="+1">US +1</option>
-                    <option value="+44">UK +44</option>
-                    <option value="+234">NG +234</option>
-                    <option value="+225">CI +225</option>
-                    <option value="+221">SN +221</option>
-                    <option value="+49">DE +49</option>
-                  </select>
+              {method === "phone" ? (
+                <div className="form-field">
+                  <label>Phone Number</label>
+
+                  <div className="phone-input">
+                    <select value={countryCode} onChange={(event) => setCountryCode(event.target.value)}>
+                      <option value="+237">CM +237</option>
+                      <option value="+33">FR +33</option>
+                      <option value="+1">US +1</option>
+                      <option value="+44">UK +44</option>
+                      <option value="+234">NG +234</option>
+                      <option value="+225">CI +225</option>
+                      <option value="+221">SN +221</option>
+                      <option value="+49">DE +49</option>
+                    </select>
+
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={phoneNumber}
+                      onChange={(event) => setPhoneNumber(event.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="form-field">
+                  <label>Email</label>
 
                   <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={phoneNumber}
-                    onChange={(event) => setPhoneNumber(event.target.value)}
+                    type="email"
+                    className="standard-input"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="email"
                     required
                   />
                 </div>
-              </div>
+              )}
 
 
               {/* PASSWORD */}

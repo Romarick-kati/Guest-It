@@ -30,6 +30,13 @@ export default function GameCard({ game }) {
   return (
     <Link
       to={`/games/${game.id}`}
+      // replace, not push: the games list and a specific game act as one
+      // "slot" in history, so the in-app back button (which always returns
+      // to the list) is the one way back - the browser/gesture back button
+      // exits the games section entirely instead of resurfacing games
+      // browsed earlier, which is what was landing players back on a
+      // random game when they meant to leave the list screen.
+      replace
       className="group flex flex-col h-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl overflow-hidden hover:border-[var(--color-border-strong)] hover-lift"
     >
       <div className="relative h-36 overflow-hidden">
@@ -52,9 +59,11 @@ export default function GameCard({ game }) {
       <div className="flex flex-col flex-1 p-4 gap-3">
         <div>
           <h3 className="font-display font-semibold text-[var(--color-ink)]">{game.title}</h3>
-          <p className="text-sm text-[var(--color-ink-muted)] mt-0.5 line-clamp-2">
-            {game.description}
-          </p>
+          {game.description && (
+            <p className="text-sm text-[var(--color-ink-muted)] mt-0.5 line-clamp-2">
+              {game.description}
+            </p>
+          )}
         </div>
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-2 border-t border-[var(--color-border)]">

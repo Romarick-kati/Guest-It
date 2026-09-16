@@ -5,6 +5,7 @@ import Dropdown, { DropdownItem } from "../components/ui/Dropdown";
 import Badge from "../components/ui/Badge";
 import { useTheme } from "../context/ThemeContext";
 import { fetchNotifications } from "../lib/api";
+import { getSession, signOut } from "../lib/auth";
 
 const LANGUAGES = [
   { code: "en", label: "English" },
@@ -16,6 +17,12 @@ export default function AdminHeader({ title, onMenuClick }) {
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const [language, setLanguage] = useState("en");
+  const admin = getSession()?.user;
+
+  const handleLogOut = () => {
+    signOut();
+    navigate("/signin", { replace: true });
+  };
 
   useEffect(() => {
     fetchNotifications().then(setNotifications).catch(() => {});
@@ -118,12 +125,12 @@ export default function AdminHeader({ title, onMenuClick }) {
           }
         >
           <div className="px-3.5 py-2.5 border-b border-[var(--color-border)]">
-            <p className="text-sm font-medium text-[var(--color-ink)]">Admin</p>
-            <p className="text-xs text-[var(--color-ink-muted)]">admin@onpoint.app</p>
+            <p className="text-sm font-medium text-[var(--color-ink)]">{admin?.fullName || "Admin"}</p>
+            <p className="text-xs text-[var(--color-ink-muted)]">{admin?.email || "admin@onpoint.app"}</p>
           </div>
           <DropdownItem onClick={() => navigate("/admin/settings")}>Edit profile</DropdownItem>
           <DropdownItem onClick={() => navigate("/admin/settings")}>Change password</DropdownItem>
-          <DropdownItem onClick={() => navigate("/")} className="text-[var(--color-danger)]" icon={<icons.logout className="h-4 w-4" />}>
+          <DropdownItem onClick={handleLogOut} className="text-[var(--color-danger)]" icon={<icons.logout className="h-4 w-4" />}>
             Log out
           </DropdownItem>
         </Dropdown>

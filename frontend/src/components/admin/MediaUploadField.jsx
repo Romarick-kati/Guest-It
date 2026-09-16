@@ -1,6 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { icons } from "../ui/icons";
 import VideoPlayer from "../ui/VideoPlayer";
+
+// There's no separate file/object storage backend - the game document
+// itself (in the `games` MongoDB collection) stores this as a base64 data
+// URI, so the cap here has to leave room under the server's request body
+// limit (8MB, see backend/src/server.js) once base64 inflates the file by
+// roughly a third.
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
 
 /**
  * Lets an admin attach a real photo or short video of the actual item
@@ -8,10 +15,9 @@ import VideoPlayer from "../ui/VideoPlayer";
  * real photo/video here — instead of a generic icon — is what makes a
  * game feel like a genuine estimation contest rather than a betting slip.
  *
- * `value` is `{ type: "image" | "video", url, file, name }` or `null`.
- * `url` is a local object URL for preview only. The backend team will
- * swap the upload handler for a real endpoint later — this component
- * only needs its `onChange` payload's `file` to do that.
+ * `value` is `{ type: "image" | "video", url, name }` or `null`. `url` is a
+ * base64 data URI - it's sent as-is to the backend and persists with the
+ * game, unlike a blob: URL which only exists for this browser tab.
  */
 export default function MediaUploadField({
   label = "Game media",
@@ -24,15 +30,6 @@ export default function MediaUploadField({
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState("");
 
-  // Revoke the previous object URL whenever it's replaced or the field
-  // unmounts, so we don't leak memory across repeated selections.
-  useEffect(() => {
-    return () => {
-      if (value?.url) URL.revokeObjectURL(value.url);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value?.url]);
-
   const acceptFile = (file) => {
     if (!file) return;
     const isImage = file.type.startsWith("image/");
@@ -41,13 +38,17 @@ export default function MediaUploadField({
       setError("Please choose an image or video file.");
       return;
     }
-    if (file.size > 50 * 1024 * 1024) {
-      setError("File is too large — keep it under 50MB.");
+    if (file.size > MAX_FILE_BYTES) {
+      setError("File is too large — keep it under 4MB (there's no separate media storage yet, so it's saved with the game itself).");
       return;
     }
     setError("");
-    const url = URL.createObjectURL(file);
-    onChange?.({ type: isImage ? "image" : "video", url, file, name: file.name });
+    const reader = new FileReader();
+    reader.onload = () => {
+      onChange?.({ type: isImage ? "image" : "video", url: reader.result, name: file.name });
+    };
+    reader.onerror = () => setError("Couldn't read that file — please try again.");
+    reader.readAsDataURL(file);
   };
 
   const handleDrop = (e) => {
@@ -58,7 +59,6 @@ export default function MediaUploadField({
 
   const handleRemove = (e) => {
     e.stopPropagation();
-    if (value?.url) URL.revokeObjectURL(value.url);
     onChange?.(null);
     if (inputRef.current) inputRef.current.value = "";
   };

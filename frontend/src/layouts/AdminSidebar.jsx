@@ -2,8 +2,12 @@ import { NavLink } from "react-router-dom";
 import { ADMIN_NAV } from "./adminNav";
 import { icons } from "../components/ui/icons";
 import Logo from "../components/ui/Logo";
+import { getSession } from "../lib/auth";
 
 export default function AdminSidebar({ onNavigate }) {
+  const admin = getSession()?.user;
+  const initial = (admin?.fullName || admin?.email || "A").trim().charAt(0).toUpperCase();
+
   return (
     <div className="flex flex-col h-full">
       <div className="h-16 flex items-center gap-2 px-5 border-b border-[var(--color-border)]">
@@ -36,11 +40,11 @@ export default function AdminSidebar({ onNavigate }) {
       <div className="px-3 py-4 border-t border-[var(--color-border)]">
         <div className="flex items-center gap-3 px-2">
           <div className="h-8 w-8 rounded-full bg-[var(--color-surface-sunken)] flex items-center justify-center text-xs font-medium text-[var(--color-ink-muted)]">
-            A
+            {initial}
           </div>
-          <div className="text-sm">
-            <p className="font-medium text-[var(--color-ink)]">Admin</p>
-            <p className="text-xs text-[var(--color-ink-muted)]">admin@onpoint.app</p>
+          <div className="text-sm min-w-0">
+            <p className="font-medium text-[var(--color-ink)] truncate">{admin?.fullName || "Admin"}</p>
+            <p className="text-xs text-[var(--color-ink-muted)] truncate">{admin?.email || "admin@onpoint.app"}</p>
           </div>
         </div>
       </div>

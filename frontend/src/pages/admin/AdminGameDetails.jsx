@@ -76,7 +76,7 @@ export default function AdminGameDetails() {
                 <span className="text-xs text-[var(--color-ink-faint)]">{gameTypeLabel(game.gameType)}</span>
               </div>
               <h2 className="font-display text-xl font-semibold text-[var(--color-ink)]">{game.title}</h2>
-              <p className="text-sm text-[var(--color-ink-muted)] mt-1">{game.description}</p>
+              {game.description && <p className="text-sm text-[var(--color-ink-muted)] mt-1">{game.description}</p>}
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {(game.status === GAME_STATUS.DRAFT || game.status === GAME_STATUS.UPCOMING) && (
@@ -130,7 +130,7 @@ export default function AdminGameDetails() {
           <CardHeader title="Overview" subtitle="Everything about this game at a glance" />
           <dl className="grid sm:grid-cols-2 gap-4 mt-4 text-sm">
             <Row label="How to play" value={game.howToPlay} />
-            <Row label="Unit" value={game.unit} />
+            {game.unit && <Row label="Unit" value={game.unit} />}
             <Row label="Start" value={new Date(game.startsAt).toLocaleString()} />
             <Row label="End" value={new Date(game.endsAt).toLocaleString()} />
             <Row label="Created" value={game.createdAt} />

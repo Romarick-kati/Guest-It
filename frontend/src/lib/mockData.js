@@ -1,234 +1,16 @@
 // ---------------------------------------------------------------------------
 // MOCK DATA
 // This file simulates the shape of data that the backend/API will
-// eventually provide for ON Point (the platform) and its games — Guess it
-// is just the first game type running on it. Every page reads from here
-// through the small "service" functions in lib/api.js so that swapping in
-// real API calls later only means editing that one file, not every page.
+// eventually provide for ON Point (the platform). Games themselves are real
+// now (see backend/src/server.js's `games` collection, wired up through
+// lib/api.js) - everything below is still mock/local.
 // ---------------------------------------------------------------------------
-import { GAME_STATUS } from "./gameStatus";
 
 export const GAME_TYPES = [
   { value: "GUESSING", label: "Guessing Game" },
   { value: "PREDICTION", label: "Prediction Game" },
   { value: "QUIZ", label: "Quiz" },
   { value: "CHALLENGE", label: "Challenge" },
-];
-
-export const games = [
-  {
-    id: "g1",
-    title: "Guess it",
-    gameType: "GUESSING",
-    slug: "guess-it",
-    image: "candy-jar",
-    description: "How many candies are packed into the jar? Get closest to win.",
-    howToPlay:
-      "Look at the image carefully and estimate the total number of objects shown. Enter your best guess before time runs out.",
-    rules: [
-      "One entry per player per game.",
-      "Entry fee is non-refundable once the game starts.",
-      "Matching the exact count wins the prize.",
-      "If more than one player matches exactly, the system resolves it automatically, or offers those players a split or a tiebreaker game.",
-    ],
-    status: GAME_STATUS.LIVE,
-    prize: 150000,
-    entryFee: 100,
-    currency: "FCFA",
-    participants: 143,
-    submissions: 119,
-    participantLimit: 500,
-    startsAt: Date.now() - 1000 * 60 * 5,
-    endsAt: Date.now() + 42 * 1000,
-    createdAt: "Sep 1, 2026",
-    requiresPayment: true,
-    requiresVerification: true,
-    unit: "objects",
-  },
-  {
-    id: "g2",
-    title: "Estimate the Coins",
-    gameType: "GUESSING",
-    slug: "estimate-the-coins",
-    image: "coins",
-    description: "A jar full of coins. Guess the total value inside.",
-    howToPlay: "Study the photo and estimate the total number of coins in the jar.",
-    rules: [
-      "One entry per player per game.",
-      "Entry fee is non-refundable once the game starts.",
-      "Matching the exact count wins the prize.",
-    ],
-    status: GAME_STATUS.UPCOMING,
-    prize: 80000,
-    entryFee: 200,
-    currency: "FCFA",
-    participants: 0,
-    submissions: 0,
-    participantLimit: 300,
-    startsAt: Date.now() + 1000 * 60 * 60 * 2 + 1000 * 60 * 14,
-    endsAt: Date.now() + 1000 * 60 * 60 * 3,
-    createdAt: "Sep 4, 2026",
-    requiresPayment: true,
-    requiresVerification: false,
-    unit: "coins",
-  },
-  {
-    id: "g3",
-    title: "Marble Challenge",
-    gameType: "CHALLENGE",
-    slug: "marble-challenge",
-    image: "marbles",
-    description: "Count the marbles in the bowl. Free entry, bragging rights only.",
-    howToPlay: "Look closely at the bowl of marbles and submit your best estimate.",
-    rules: ["Free entry.", "One submission per player.", "Matching the exact number wins."],
-    status: GAME_STATUS.CLOSED,
-    prize: 0,
-    entryFee: 0,
-    currency: "FCFA",
-    participants: 320,
-    submissions: 320,
-    participantLimit: null,
-    startsAt: Date.now() - 1000 * 60 * 60 * 5,
-    endsAt: Date.now() - 1000 * 60 * 2,
-    createdAt: "Aug 28, 2026",
-    requiresPayment: false,
-    requiresVerification: false,
-    unit: "marbles",
-    result: {
-      correctAnswer: 268,
-    },
-  },
-  {
-    id: "g4",
-    title: "Popcorn Bucket",
-    gameType: "GUESSING",
-    slug: "popcorn-bucket",
-    image: "popcorn",
-    description: "A giant bucket of popcorn. How many kernels do you see?",
-    howToPlay: "Estimate the number of popcorn kernels visible in the bucket image.",
-    rules: [
-      "Entry fee applies.",
-      "One entry per player.",
-      "Matching the exact number wins the prize.",
-      "If more than one player matches exactly, the system resolves it — automatically, or by offering those players a split or a tiebreaker game.",
-    ],
-    status: GAME_STATUS.COMPLETED,
-    prize: 60000,
-    entryFee: 100,
-    currency: "FCFA",
-    participants: 412,
-    submissions: 400,
-    participantLimit: null,
-    startsAt: Date.now() - 1000 * 60 * 60 * 30,
-    endsAt: Date.now() - 1000 * 60 * 60 * 28,
-    createdAt: "Sep 6, 2026",
-    requiresPayment: true,
-    requiresVerification: true,
-    unit: "kernels",
-    result: {
-      correctAnswer: 350,
-    },
-  },
-  {
-    id: "g5",
-    title: "Button Jar",
-    gameType: "GUESSING",
-    slug: "button-jar",
-    image: "buttons",
-    description: "Bright buttons packed into a glass jar. Guess the total.",
-    howToPlay: "Count as closely as you can, then submit your estimate.",
-    rules: ["Entry fee applies.", "One entry per player.", "Matching the exact number wins the prize."],
-    status: GAME_STATUS.LIVE,
-    prize: 45000,
-    entryFee: 50,
-    currency: "FCFA",
-    participants: 88,
-    submissions: 60,
-    participantLimit: 500,
-    startsAt: Date.now() - 1000 * 60 * 20,
-    endsAt: Date.now() + 8 * 1000,
-    createdAt: "Sep 7, 2026",
-    requiresPayment: true,
-    requiresVerification: false,
-    unit: "buttons",
-  },
-  {
-    id: "g6",
-    title: "Sweet Jellybeans",
-    gameType: "GUESSING",
-    slug: "sweet-jellybeans",
-    image: "jellybeans",
-    description: "A colourful jar of jellybeans. Prize goes to the closest guess.",
-    howToPlay: "Estimate the total number of jellybeans in the jar.",
-    rules: ["Entry fee applies.", "One entry per player."],
-    status: GAME_STATUS.UPCOMING,
-    prize: 100000,
-    entryFee: 150,
-    currency: "FCFA",
-    participants: 0,
-    submissions: 0,
-    participantLimit: 400,
-    startsAt: Date.now() + 1000 * 60 * 60 * 26,
-    endsAt: Date.now() + 1000 * 60 * 60 * 27,
-    createdAt: "Sep 8, 2026",
-    requiresPayment: true,
-    requiresVerification: true,
-    unit: "jellybeans",
-  },
-  {
-    id: "g7",
-    title: "Score Predictor",
-    gameType: "PREDICTION",
-    slug: "score-predictor",
-    image: "coins",
-    description: "Predict the final score of tonight's match.",
-    howToPlay: "Enter your predicted final score before kickoff.",
-    rules: ["Entry fee applies.", "Closest prediction wins."],
-    status: GAME_STATUS.DRAFT,
-    prize: 70000,
-    entryFee: 100,
-    currency: "FCFA",
-    participants: 0,
-    submissions: 0,
-    participantLimit: null,
-    startsAt: Date.now() + 1000 * 60 * 60 * 48,
-    endsAt: Date.now() + 1000 * 60 * 60 * 50,
-    createdAt: "Sep 9, 2026",
-    requiresPayment: true,
-    requiresVerification: false,
-    unit: "points",
-  },
-  {
-    id: "g8",
-    title: "Marble Jar Rematch",
-    gameType: "GUESSING",
-    slug: "marble-jar-rematch",
-    image: "marbles",
-    description: "A fresh bowl of marbles. Match the exact number to win.",
-    howToPlay: "Estimate the total number of marbles in the bowl. Matching the exact number enters you into the winner pool.",
-    rules: [
-      "Entry fee applies.",
-      "One entry per player.",
-      "Matching the exact number wins the prize.",
-      "If more than one player matches exactly, the system resolves it — automatically, or by offering those players a split or a tiebreaker game.",
-    ],
-    status: GAME_STATUS.COMPLETED,
-    prize: 90000,
-    entryFee: 150,
-    currency: "FCFA",
-    participants: 265,
-    submissions: 250,
-    participantLimit: null,
-    startsAt: Date.now() - 1000 * 60 * 60 * 10,
-    endsAt: Date.now() - 1000 * 60 * 60 * 8,
-    createdAt: "Sep 9, 2026",
-    requiresPayment: true,
-    requiresVerification: true,
-    unit: "marbles",
-    result: {
-      correctAnswer: 214,
-    },
-  },
 ];
 
 // Per-game participant lists (used on /admin/games/:id/participants)
@@ -277,7 +59,11 @@ export const participants = {
   // here as one of the tied players so the player-facing result page has
   // something real to demonstrate the decision prompt against.
   g8: [
-    { id: "you", name: "You", joined: "Sep 9, 7:40 AM", payment: "CONFIRMED", status: "SUBMITTED", submittedAt: "7:58 AM", answer: 214, eligibility: "ELIGIBLE" },
+    // `seed: true` marks this as scripted demo data for the result/tie-break
+    // screen, not something the signed-in player actually did - profile
+    // stats (lib/playerStats.js) exclude it so a fresh account doesn't show
+    // a "win" it never played.
+    { id: "you", seed: true, name: "You", joined: "Sep 9, 7:40 AM", payment: "CONFIRMED", status: "SUBMITTED", submittedAt: "7:58 AM", answer: 214, eligibility: "ELIGIBLE" },
     { id: "p13", name: "Jordan K.", joined: "Sep 9, 7:42 AM", payment: "CONFIRMED", status: "SUBMITTED", submittedAt: "8:01 AM", answer: 214, eligibility: "ELIGIBLE" },
     { id: "p14", name: "Nadia F.", joined: "Sep 9, 7:45 AM", payment: "CONFIRMED", status: "SUBMITTED", submittedAt: "8:03 AM", answer: 214, eligibility: "ELIGIBLE" },
     { id: "p18", name: "Bello S.", joined: "Sep 9, 7:50 AM", payment: "CONFIRMED", status: "SUBMITTED", submittedAt: "8:05 AM", answer: 200, eligibility: "ELIGIBLE" },
@@ -309,11 +95,11 @@ export const resolutions = {};
 // submitted after the module first loaded - see joinParticipant/
 // recordSubmission below, which are the only two things that mutate
 // `participants` after initial load.
+// Games moved to the real backend, so this no longer resolves gameTitle
+// itself (it can't - it's synchronous, games aren't) - lib/api.js's
+// fetchAllParticipants fills that in from its game cache after this runs.
 export function getAllParticipants() {
-  return Object.entries(participants).flatMap(([gameId, list]) => {
-    const game = games.find((g) => g.id === gameId);
-    return list.map((p) => ({ ...p, gameId, gameTitle: game?.title || gameId }));
-  });
+  return Object.entries(participants).flatMap(([gameId, list]) => list.map((p) => ({ ...p, gameId })));
 }
 
 // ---------------------------------------------------------------------------
@@ -335,8 +121,9 @@ export function joinParticipant(gameId, participant) {
   const existing = participants[gameId].find((p) => p.id === participant.id);
   if (existing) return existing;
   participants[gameId] = [...participants[gameId], participant];
-  const game = games.find((g) => g.id === gameId);
-  if (game) game.participants = (game.participants || 0) + 1;
+  // Bumping the game's own `participants` count now happens against the
+  // real backend (see lib/api.js's joinGame, which calls POST
+  // /api/games/:id/join) - games aren't a local mutable object anymore.
   return participant;
 }
 
@@ -360,8 +147,9 @@ export function recordSubmission(gameId, participantId, answer) {
     participants[gameId] = [...list.slice(0, idx), updated, ...list.slice(idx + 1)];
   }
 
-  const game = games.find((g) => g.id === gameId);
-  if (game) game.submissions = (game.submissions || 0) + 1;
+  // Bumping the game's own `submissions` count now happens against the
+  // real backend (see lib/api.js's submitAnswer, which calls POST
+  // /api/games/:id/submissions) - games aren't a local mutable object anymore.
 }
 
 export const winners = [
@@ -456,81 +244,6 @@ export const recentActivity = [
   { id: "a6", text: "Admin updated game \"Guess it\"", time: "8 hours ago" },
   { id: "a7", text: "128 new players joined this week", time: "1 day ago" },
 ];
-
-export function getGameById(id) {
-  return games.find((g) => g.id === id);
-}
-
-// ---------------------------------------------------------------------------
-// GAME CREATE/EDIT (mutable)
-// createGame/updateGame in lib/api.js used to resolve "successfully" without
-// ever touching this array, so a new game never showed up in the games list
-// and editing one (including publishing a result via "Correct answer")
-// silently reverted next time it was fetched. These two functions are the
-// single place that actually writes admin changes into the shared store.
-// ---------------------------------------------------------------------------
-
-function toMillis(datetimeLocal, fallback) {
-  if (!datetimeLocal) return fallback;
-  const ms = new Date(datetimeLocal).getTime();
-  return Number.isNaN(ms) ? fallback : ms;
-}
-
-// Maps the flat GameForm field shape onto the app's internal game shape.
-// `existing`, when provided (edit), supplies defaults for anything the
-// form didn't collect for this particular game yet.
-function buildGameRecord(values, existing) {
-  const startsAt = toMillis(values.startAt, existing?.startsAt ?? Date.now());
-  const endsAt = toMillis(values.endAt, existing?.endsAt ?? startsAt + 1000 * 60 * 60);
-  const entryFee = values.entryFee !== "" && values.entryFee != null ? Number(values.entryFee) : existing?.entryFee ?? 0;
-  const hasCorrectAnswer = values.correctAnswer !== "" && values.correctAnswer != null;
-
-  return {
-    ...existing,
-    title: values.title ?? existing?.title ?? "Untitled game",
-    gameType: values.gameType ?? existing?.gameType ?? "GUESSING",
-    description: values.description ?? existing?.description ?? "",
-    howToPlay: values.instructions ?? existing?.howToPlay ?? "",
-    media: values.media ?? existing?.media ?? null,
-    question: values.question ?? existing?.question ?? "",
-    unit: values.unit ?? existing?.unit ?? "",
-    status: values.status ?? existing?.status ?? "DRAFT",
-    prize: values.prize !== "" && values.prize != null ? Number(values.prize) : existing?.prize ?? 0,
-    entryFee,
-    rewardDescription: values.rewardDescription ?? existing?.rewardDescription ?? "",
-    participantLimit:
-      values.participantLimit !== "" && values.participantLimit != null
-        ? Number(values.participantLimit)
-        : existing?.participantLimit ?? null,
-    startsAt,
-    endsAt,
-    currency: existing?.currency ?? "FCFA",
-    participants: existing?.participants ?? 0,
-    submissions: existing?.submissions ?? 0,
-    createdAt: existing?.createdAt ?? new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
-    requiresPayment: entryFee > 0,
-    requiresVerification: existing?.requiresVerification ?? false,
-    rules: existing?.rules ?? [],
-    // Setting a correct answer is how an admin publishes a result - it's
-    // what getExactMatches/summariseOutcome in lib/resolution.js key off.
-    result: hasCorrectAnswer ? { correctAnswer: Number(values.correctAnswer) } : existing?.result ?? null,
-  };
-}
-
-export function insertGame(values) {
-  const id = `g${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  const record = { id, ...buildGameRecord(values, null) };
-  games.push(record);
-  return record;
-}
-
-export function upsertGame(id, values) {
-  const idx = games.findIndex((g) => g.id === id);
-  const record = { id, ...buildGameRecord(values, idx !== -1 ? games[idx] : null) };
-  if (idx === -1) games.push(record);
-  else games[idx] = record;
-  return record;
-}
 
 export function getUserById(id) {
   return users.find((u) => u.id === id);

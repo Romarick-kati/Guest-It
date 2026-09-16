@@ -63,21 +63,18 @@ export default function EditGame() {
         initialValues={{
           title: game.title,
           gameType: game.gameType || "GUESSING",
-          description: game.description,
           instructions: game.howToPlay,
           media: game.media || null,
           question: game.question || "",
-          unit: game.unit,
           correctAnswer: game.result?.correctAnswer ?? "",
-          countdownMinutes: String(Math.round((game.endsAt - game.startsAt) / 60000) || 5),
           startAt: toDatetimeLocal(game.startsAt),
           endAt: toDatetimeLocal(game.endsAt),
           participantLimit: game.participantLimit ?? "",
-          prize: game.prize,
           entryFee: game.entryFee,
           rewardDescription: game.rewardDescription || "",
           status: game.status,
         }}
+        liveStats={{ prize: game.prize, participants: game.participants || 0 }}
         onSubmit={handleSubmit}
         submitting={submitting}
       />

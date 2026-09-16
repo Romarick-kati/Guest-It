@@ -6,22 +6,19 @@ import { CardHeader } from "../ui/Card";
 import Card from "../ui/Card";
 import MediaUploadField from "./MediaUploadField";
 import { GAME_TYPES } from "../../lib/mockData";
+import { formatCurrency } from "../../lib/gameStatus";
 
 const defaultValues = {
   title: "",
   gameType: "GUESSING",
-  description: "",
   instructions: "",
   media: null,
   question: "How many are inside?",
-  unit: "",
   answerType: "NUMBER",
   correctAnswer: "",
-  countdownMinutes: "5",
   startAt: "",
   endAt: "",
   participantLimit: "",
-  prize: "",
   entryFee: "",
   rewardDescription: "",
   status: "DRAFT",
@@ -33,7 +30,9 @@ const ANSWER_TYPES = [
   { value: "CHOICE", label: "Multiple choice" },
 ];
 
-export default function GameForm({ initialValues = {}, onSubmit, submitting = false }) {
+// Passed only when editing a real game, so the Reward card can show the
+// pool it actually has right now (see EditGame.jsx).
+export default function GameForm({ initialValues = {}, liveStats = null, onSubmit, submitting = false }) {
   const [values, setValues] = useState({ ...defaultValues, ...initialValues });
 
   const update = (key) => (e) =>
@@ -65,18 +64,6 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
           />
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1.5">
-              Description
-            </label>
-            <textarea
-              rows={2}
-              value={values.description}
-              onChange={update("description")}
-              placeholder="A short summary shown on the game card"
-              className="w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface)] text-sm px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30 focus:border-[var(--color-accent)]"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-[var(--color-ink)] mb-1.5">
               Instructions / how to play
             </label>
             <textarea
@@ -92,7 +79,7 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
 
       <Card>
         <CardHeader title="Game content" subtitle="The real photo or video players will estimate, plus the question" />
-        <div className="grid sm:grid-cols-2 gap-4 mt-4">
+        <div className="flex flex-col gap-4 mt-4">
           <MediaUploadField
             value={values.media}
             onChange={(media) => setValues((v) => ({ ...v, media }))}
@@ -101,14 +88,9 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
           />
           <Input
             label="Question shown to players"
+            hint="This is what players see - it already says what they're counting, so there's no separate description or unit to fill in."
             value={values.question}
             onChange={update("question")}
-          />
-          <Input
-            label="Answer unit"
-            placeholder="e.g. objects, coins"
-            value={values.unit}
-            onChange={update("unit")}
           />
         </div>
       </Card>
@@ -128,12 +110,6 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
             hint="Kept private from players until results are published"
             value={values.correctAnswer}
             onChange={update("correctAnswer")}
-          />
-          <Input
-            label="Countdown duration (minutes)"
-            type="number"
-            value={values.countdownMinutes}
-            onChange={update("countdownMinutes")}
           />
           <Input
             label="Start date & time"
@@ -158,14 +134,8 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
       </Card>
 
       <Card>
-        <CardHeader title="Reward" subtitle="Prize and entry cost" />
-        <div className="grid sm:grid-cols-2 gap-4 mt-4">
-          <Input
-            label="Prize amount (FCFA)"
-            type="number"
-            value={values.prize}
-            onChange={update("prize")}
-          />
+        <CardHeader title="Reward" subtitle="How the entry fee is split" />
+        <div className="flex flex-col gap-4 mt-4">
           <Input
             label="Entry fee (FCFA)"
             type="number"
@@ -173,12 +143,22 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
             value={values.entryFee}
             onChange={update("entryFee")}
           />
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-3 text-sm text-[var(--color-ink-muted)]">
+            <p>
+              The winner pool isn&apos;t set manually — 80% of every entry fee collected goes to it, 20% goes to the
+              platform. It grows automatically as players join, and is 0 until anyone does.
+            </p>
+            {liveStats && (
+              <p className="mt-2 font-medium text-[var(--color-ink)]">
+                Current pool: {formatCurrency(liveStats.prize, "FCFA")} · {liveStats.participants} joined
+              </p>
+            )}
+          </div>
           <Input
             label="Reward description (optional)"
             placeholder="e.g. Cash prize + platform badge"
             value={values.rewardDescription}
             onChange={update("rewardDescription")}
-            containerClassName="sm:col-span-2"
           />
         </div>
       </Card>
@@ -218,7 +198,11 @@ export default function GameForm({ initialValues = {}, onSubmit, submitting = fa
           variant="primary"
           size="lg"
           loading={submitting && values.status !== "DRAFT"}
-          onClick={handleSubmit("UPCOMING")}
+          // Honor whichever Visibility button the admin picked (including
+          // Live) - only fall back to Upcoming if they never touched it
+          // (status still at its DRAFT default), so this button still means
+          // "publish" rather than silently re-saving as a draft.
+          onClick={handleSubmit(values.status === "DRAFT" ? "UPCOMING" : values.status)}
         >
           {initialValues?.title ? "Save changes" : "Create game"}
         </Button>

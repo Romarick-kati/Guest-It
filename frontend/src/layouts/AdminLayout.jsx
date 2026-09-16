@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import AdminBreadcrumbs from "./AdminBreadcrumbs";
 import { ADMIN_NAV } from "./adminNav";
+import { getSession, isSignedIn } from "../lib/auth";
 
 function currentTitle(pathname) {
   const match = [...ADMIN_NAV]
@@ -12,9 +13,28 @@ function currentTitle(pathname) {
   return match?.label || "Admin";
 }
 
+function isAdminSignedIn() {
+  return isSignedIn() && Boolean(getSession()?.user?.isAdmin);
+}
+
 export default function AdminLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAdminSignedIn()) {
+      // replace, not push: this check runs on mount, so a plain push would
+      // leave this /admin route in history right behind /signin - hitting
+      // the browser back button would land back here and immediately
+      // redirect again, making back look broken (same reasoning as the
+      // guards on Profile.jsx/GamePlay.jsx).
+      navigate("/signin", { replace: true, state: { returnTo: location.pathname } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!isAdminSignedIn()) return null;
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] lg:flex">
